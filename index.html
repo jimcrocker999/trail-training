@@ -6,758 +6,140 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Jim's Trail Training</title>
-<link rel="apple-touch-icon" id="appicon" href="">
-<script>
-(function() {
-  const c = document.createElement('canvas');
-  c.width = 180; c.height = 180;
-  const x = c.getContext('2d');
-  // Background gradient
-  const g = x.createLinearGradient(0,0,180,180);
-  g.addColorStop(0,'#1B4332'); g.addColorStop(1,'#2D6A4F');
-  x.fillStyle = g;
-  const r = 36;
-  x.beginPath();
-  x.moveTo(r,0); x.lineTo(180-r,0); x.quadraticCurveTo(180,0,180,r);
-  x.lineTo(180,180-r); x.quadraticCurveTo(180,180,180-r,180);
-  x.lineTo(r,180); x.quadraticCurveTo(0,180,0,180-r);
-  x.lineTo(0,r); x.quadraticCurveTo(0,0,r,0);
-  x.closePath(); x.fill();
-  // Back mountain
-  x.fillStyle='#52796F';
-  x.beginPath(); x.moveTo(15,148); x.lineTo(72,52); x.lineTo(128,148); x.closePath(); x.fill();
-  // Front mountain
-  x.fillStyle='#74B49B';
-  x.beginPath(); x.moveTo(62,148); x.lineTo(118,72); x.lineTo(165,148); x.closePath(); x.fill();
-  // Snow cap
-  x.fillStyle='#FDFBF7';
-  x.beginPath(); x.moveTo(118,72); x.lineTo(106,98); x.lineTo(130,98); x.closePath(); x.fill();
-  // Sun
-  x.fillStyle='#D4A017';
-  x.beginPath(); x.arc(148,36,16,0,Math.PI*2); x.fill();
-  // Rays
-  x.strokeStyle='#E8C547'; x.lineWidth=2;
-  for(let i=0;i<8;i++){
-    const a=i*Math.PI/4;
-    x.beginPath(); x.moveTo(148+20*Math.cos(a),36+20*Math.sin(a));
-    x.lineTo(148+27*Math.cos(a),36+27*Math.sin(a)); x.stroke();
-  }
-  document.getElementById('appicon').href = c.toDataURL('image/png');
-})();
-</script>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Trail Training</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --forest:    #1B4332;
-    --pine:      #2C5F2E;
-    --sage:      #52796F;
-    --mist:      #84A98C;
-    --gold:      #D4A017;
-    --amber:     #E8C547;
-    --stone:     #F4F1EC;
-    --parchment: #FDFBF7;
-    --ink:       #1C1C1C;
-    --bark:      #5C4033;
-    --sky:       #2E6DA4;
-    --cream:     #FAF7F0;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--parchment);
-    color: var(--ink);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ── Topography background texture ── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(44,95,46,0.04) 39px, rgba(44,95,46,0.04) 40px),
-      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(44,95,46,0.02) 39px, rgba(44,95,46,0.02) 40px);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* ── Header ── */
-  .app-header {
-    background: var(--forest);
-    color: white;
-    padding: 20px 24px 16px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 20px rgba(0,0,0,0.3);
-  }
-
-  .header-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .app-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    font-weight: 900;
-    letter-spacing: -0.3px;
-    line-height: 1.1;
-  }
-
-  .app-subtitle {
-    font-size: 11px;
-    color: var(--mist);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-top: 3px;
-  }
-
-  .date-display {
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  .date-day {
-    font-family: 'Playfair Display', serif;
-    font-size: 32px;
-    font-weight: 900;
-    color: var(--amber);
-    line-height: 1;
-  }
-
-  .date-month {
-    font-size: 11px;
-    color: var(--mist);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  /* ── Nav tabs ── */
-  .nav-tabs {
-    display: flex;
-    gap: 4px;
-    margin-top: 14px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    padding-bottom: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .nav-tabs::-webkit-scrollbar { display: none; }
-
-  .nav-tab {
-    background: none;
-    border: none;
-    color: var(--mist);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    padding: 6px 14px 10px;
-    cursor: pointer;
-    white-space: nowrap;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -1px;
-    transition: color 0.2s, border-color 0.2s;
-  }
-
-  .nav-tab.active {
-    color: var(--amber);
-    border-bottom-color: var(--amber);
-  }
-
-  /* ── Main content ── */
-  .content {
-    position: relative;
-    z-index: 1;
-    padding: 20px 16px 100px;
-    max-width: 680px;
-    margin: 0 auto;
-  }
-
-  .view { display: none; }
-  .view.active { display: block; }
-
-  /* ── Today Card ── */
-  .today-card {
-    background: var(--forest);
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 20px;
-    box-shadow: 0 8px 32px rgba(27,67,50,0.25);
-  }
-
-  .today-header {
-    padding: 20px 20px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-
-  .today-phase-badge {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    padding: 3px 10px;
-    border-radius: 20px;
-    margin-bottom: 10px;
-  }
-
-  .today-weekday {
-    font-family: 'Playfair Display', serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: white;
-    line-height: 1.1;
-  }
-
-  .today-date-full {
-    font-size: 12px;
-    color: var(--mist);
-    margin-top: 4px;
-    letter-spacing: 0.5px;
-  }
-
-  .today-workout {
-    padding: 20px;
-  }
-
-  .workout-label {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--mist);
-    margin-bottom: 8px;
-  }
-
-  .workout-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--amber);
-    line-height: 1.2;
-    margin-bottom: 10px;
-  }
-
-  .workout-detail {
-    font-size: 14px;
-    color: rgba(255,255,255,0.8);
-    line-height: 1.6;
-  }
-
-  .workout-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 14px;
-  }
-
-  .workout-tag {
-    background: rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.7);
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-
-  /* ── Encouragement Card ── */
-  .encouragement-card {
-    background: var(--cream);
-    border: 2px solid var(--gold);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .encouragement-card::before {
-    content: '"';
-    position: absolute;
-    top: -10px;
-    left: 14px;
-    font-family: 'Playfair Display', serif;
-    font-size: 100px;
-    color: var(--amber);
-    opacity: 0.15;
-    line-height: 1;
-  }
-
-  .encouragement-label {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 10px;
-  }
-
-  .encouragement-text {
-    font-family: 'Playfair Display', serif;
-    font-size: 17px;
-    font-style: italic;
-    color: var(--forest);
-    line-height: 1.6;
-    position: relative;
-    z-index: 1;
-  }
-
-  /* ── Week overview ── */
-  .week-card {
-    background: white;
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    border: 1px solid rgba(44,95,46,0.1);
-  }
-
-  .week-card-header {
-    background: var(--pine);
-    padding: 12px 18px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .week-card-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 15px;
-    font-weight: 700;
-    color: white;
-  }
-
-  .week-card-phase {
-    font-size: 10px;
-    color: var(--mist);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  .week-days {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .week-day-row {
-    display: flex;
-    align-items: stretch;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-    transition: background 0.15s;
-  }
-
-  .week-day-row:last-child { border-bottom: none; }
-  .week-day-row.today-row { background: rgba(44,95,46,0.05); }
-  .week-day-row.rest-row { opacity: 0.55; }
-
-  .day-label {
-    width: 42px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 6px;
-    border-right: 1px solid rgba(0,0,0,0.05);
-  }
-
-  .day-abbr {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    color: var(--sage);
-  }
-
-  .day-num {
-    font-family: 'Playfair Display', serif;
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--forest);
-    line-height: 1;
-    margin-top: 2px;
-  }
-
-  .day-num.today-num {
-    background: var(--pine);
-    color: white;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-  }
-
-  .day-content {
-    flex: 1;
-    padding: 10px 14px;
-  }
-
-  .day-activity {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--forest);
-    line-height: 1.3;
-  }
-
-  .day-detail {
-    font-size: 11px;
-    color: var(--sage);
-    margin-top: 2px;
-    line-height: 1.4;
-  }
-
-  .day-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    align-self: center;
-    margin-right: 14px;
-    flex-shrink: 0;
-  }
-
-  /* ── Schedule View ── */
-  .schedule-phase {
-    margin-bottom: 28px;
-  }
-
-  .phase-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid currentColor;
-  }
-
-  .phase-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .phase-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 16px;
-    font-weight: 700;
-  }
-
-  .phase-dates {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    opacity: 0.7;
-    margin-left: auto;
-  }
-
-  .phase-weeks {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .schedule-week-row {
-    background: white;
-    border-radius: 10px;
-    padding: 12px 14px;
-    border: 1px solid rgba(0,0,0,0.06);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  }
-
-  .schedule-week-row.current-week {
-    border-color: var(--pine);
-    box-shadow: 0 0 0 2px rgba(44,95,46,0.15);
-  }
-
-  .schedule-week-label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    color: var(--sage);
-    margin-bottom: 6px;
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .current-badge {
-    background: var(--pine);
-    color: white;
-    font-size: 9px;
-    padding: 2px 7px;
-    border-radius: 10px;
-    letter-spacing: 0.5px;
-  }
-
-  .schedule-week-days {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-  }
-
-  .sched-day {
-    text-align: center;
-    padding: 4px 2px;
-  }
-
-  .sched-day-label {
-    font-size: 9px;
-    color: var(--sage);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 3px;
-  }
-
-  .sched-day-activity {
-    font-size: 10px;
-    color: var(--forest);
-    line-height: 1.3;
-    font-weight: 500;
-  }
-
-  /* ── Trips View ── */
-  .trip-card {
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 20px;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.12);
-  }
-
-  .trip-card-hero {
-    background: var(--forest);
-    padding: 24px 20px 20px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .trip-card-hero::after {
-    content: '';
-    position: absolute;
-    bottom: -20px;
-    right: -20px;
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.04);
-  }
-
-  .trip-badge {
-    display: inline-block;
-    background: var(--gold);
-    color: var(--forest);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    padding: 3px 10px;
-    border-radius: 20px;
-    margin-bottom: 10px;
-  }
-
-  .trip-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 26px;
-    font-weight: 900;
-    color: white;
-    line-height: 1.1;
-    margin-bottom: 6px;
-  }
-
-  .trip-dates {
-    font-size: 13px;
-    color: var(--mist);
-  }
-
-  .trip-countdown {
-    margin-top: 14px;
-    display: flex;
-    gap: 16px;
-  }
-
-  .countdown-item {
-    text-align: center;
-  }
-
-  .countdown-num {
-    font-family: 'Playfair Display', serif;
-    font-size: 32px;
-    font-weight: 900;
-    color: var(--amber);
-    line-height: 1;
-  }
-
-  .countdown-label {
-    font-size: 10px;
-    color: var(--mist);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-top: 2px;
-  }
-
-  .trip-card-details {
-    background: white;
-    padding: 16px 20px;
-  }
-
-  .trip-detail-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(0,0,0,0.06);
-    font-size: 13px;
-  }
-
-  .trip-detail-row:last-child { border-bottom: none; }
-  .trip-detail-label { color: var(--sage); font-weight: 500; }
-  .trip-detail-value { color: var(--forest); font-weight: 600; text-align: right; }
-
-  /* ── Progress bar ── */
-  .progress-section {
-    background: white;
-    border-radius: 16px;
-    padding: 18px 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    border: 1px solid rgba(44,95,46,0.1);
-  }
-
-  .progress-title {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--sage);
-    margin-bottom: 14px;
-  }
-
-  .progress-item {
-    margin-bottom: 14px;
-  }
-
-  .progress-item:last-child { margin-bottom: 0; }
-
-  .progress-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    margin-bottom: 5px;
-  }
-
-  .progress-name { font-weight: 600; color: var(--forest); }
-  .progress-pct { color: var(--sage); }
-
-  .progress-bar-bg {
-    height: 6px;
-    background: rgba(0,0,0,0.06);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-
-  .progress-bar-fill {
-    height: 100%;
-    border-radius: 3px;
-    transition: width 1s ease;
-  }
-
-  /* ── Altitude tips ── */
-  .tips-card {
-    background: white;
-    border-radius: 16px;
-    padding: 18px 20px;
-    margin-bottom: 16px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    border-left: 4px solid var(--sky);
-  }
-
-  .tips-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--sky);
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .tips-text {
-    font-size: 13px;
-    color: var(--ink);
-    line-height: 1.6;
-  }
-
-  /* ── Phase color system ── */
-  .phase-p1  { color: #2C5F2E; }
-  .phase-p2  { color: #1565C0; }
-  .phase-p3  { color: #8B6914; }
-  .phase-trip { color: #1B4332; }
-  .phase-p4  { color: #6A1E55; }
-  .phase-p5  { color: #B71C1C; }
-  .phase-p6  { color: #00695C; }
-  .phase-vac { color: #5D4037; }
-
-  .dot-p1   { background: #2C5F2E; }
-  .dot-p2   { background: #1565C0; }
-  .dot-p3   { background: #8B6914; }
-  .dot-trip { background: #1B4332; }
-  .dot-p4   { background: #6A1E55; }
-  .dot-p5   { background: #B71C1C; }
-  .dot-p6   { background: #00695C; }
-  .dot-vac  { background: #5D4037; }
-  .dot-rest { background: #CCCCCC; }
-
-  .badge-p1   { background: rgba(44,95,46,0.15);   color: #2C5F2E; }
-  .badge-p2   { background: rgba(21,101,192,0.15); color: #1565C0; }
-  .badge-p3   { background: rgba(139,105,20,0.15); color: #8B6914; }
-  .badge-trip { background: rgba(27,67,50,0.15);   color: #1B4332; }
-  .badge-p4   { background: rgba(106,30,85,0.15);  color: #6A1E55; }
-  .badge-p5   { background: rgba(183,28,28,0.15);  color: #B71C1C; }
-  .badge-p6   { background: rgba(0,105,92,0.15);   color: #00695C; }
-  .badge-vac  { background: rgba(93,64,55,0.15);   color: #5D4037; }
-
-  /* ── Empty state ── */
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--sage);
-  }
-
-  .empty-icon { font-size: 40px; margin-bottom: 12px; }
-  .empty-text { font-size: 14px; line-height: 1.5; }
-
-  /* ── Responsive ── */
-  @media (min-width: 480px) {
-    .app-title { font-size: 26px; }
-    .today-weekday { font-size: 32px; }
-    .workout-name { font-size: 28px; }
-    .content { padding: 24px 24px 100px; }
-  }
-
-  /* ── Animations ── */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .view.active > * {
-    animation: fadeUp 0.4s ease both;
-  }
-  .view.active > *:nth-child(2) { animation-delay: 0.05s; }
-  .view.active > *:nth-child(3) { animation-delay: 0.10s; }
-  .view.active > *:nth-child(4) { animation-delay: 0.15s; }
-  .view.active > *:nth-child(5) { animation-delay: 0.20s; }
-
+:root {
+  --forest: #1B4332; --pine: #2C5F2E; --sage: #52796F; --mist: #84A98C;
+  --gold: #D4A017; --amber: #E8C547; --stone: #F4F1EC; --parchment: #FDFBF7;
+  --ink: #1C1C1C; --bark: #5C4033; --cream: #FAF7F0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--parchment); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(44,95,46,.04) 39px,rgba(44,95,46,.04) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(44,95,46,.02) 39px,rgba(44,95,46,.02) 40px);
+  pointer-events: none; z-index: 0;
+}
+.app-header { background: var(--forest); color: white; padding: 16px 20px 12px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 20px rgba(0,0,0,.3); }
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.app-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 900; }
+.app-subtitle { font-size: 11px; color: var(--mist); margin-top: 2px; }
+.countdown-pills { display: flex; gap: 8px; flex-shrink: 0; }
+.pill { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: 4px 10px; font-size: 10px; text-align: center; }
+.pill-num { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--amber); display: block; }
+.pill-label { font-size: 9px; color: var(--mist); }
+.nav { display: flex; background: var(--pine); overflow-x: auto; scrollbar-width: none; }
+.nav::-webkit-scrollbar { display: none; }
+.nav-btn { flex: 0 0 auto; padding: 10px 16px; border: none; background: none; color: var(--mist); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: all .2s; }
+.nav-btn.active { color: var(--amber); border-bottom-color: var(--amber); }
+.nav-btn:hover:not(.active) { color: white; }
+.content { position: relative; z-index: 1; padding: 16px; max-width: 700px; margin: 0 auto; }
+.view { display: none; }
+.view.active { display: block; }
+.card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 14px; box-shadow: 0 2px 12px rgba(0,0,0,.06); border: 1px solid rgba(0,0,0,.05); }
+.card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.card-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.card-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; }
+.card-sub { font-size: 12px; color: var(--sage); }
+.today-date { font-size: 12px; color: var(--sage); font-weight: 500; margin-bottom: 4px; }
+.today-workout-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 900; color: var(--forest); line-height: 1.2; margin-bottom: 8px; }
+.phase-badge { display: inline-block; background: var(--forest); color: white; font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 14px; }
+.workout-details { display: flex; flex-direction: column; gap: 8px; }
+.workout-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; background: var(--stone); border-radius: 10px; border-left: 3px solid var(--forest); }
+.workout-item.t-stretch { border-left-color: var(--sage); }
+.workout-item.t-yoga { border-left-color: #7B5EA7; }
+.workout-item.t-rest { border-left-color: var(--gold); }
+.workout-item.t-trip { border-left-color: var(--forest); background: #E8F5E9; }
+.wi-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.wi-label { font-size: 13px; font-weight: 600; }
+.wi-desc { font-size: 12px; color: #666; margin-top: 2px; line-height: 1.5; }
+.quote-card { background: linear-gradient(135deg,var(--forest),var(--pine)); color: white; border-radius: 16px; padding: 20px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(27,67,50,.2); }
+.quote-text { font-family: 'Playfair Display', serif; font-size: 16px; line-height: 1.5; margin-bottom: 8px; }
+.quote-attr { font-size: 11px; color: var(--mist); }
+.progress-wrap { margin-bottom: 6px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; }
+.progress-bar { height: 6px; background: var(--stone); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; }
+.fill-ip { background: linear-gradient(90deg,var(--sage),var(--forest)); }
+.fill-tsx { background: linear-gradient(90deg,var(--gold),var(--bark)); }
+.tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+.tag-gym { background: #FFF3E0; color: #C66B00; }
+.tag-cardio { background: #E8F4F8; color: #2C7EA4; }
+.tag-hike { background: #E8F5E9; color: #2E7D32; }
+.tag-rest { background: #F5F5F5; color: #757575; }
+.tag-stretch { background: #E8F5E9; color: #2E7D52; }
+.tag-yoga { background: #F3E8FF; color: #7B5EA7; }
+.tag-drive { background: #FFF8E1; color: #8B6914; }
+.tag-trip { background: #1B4332; color: white; }
+.week-header { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; margin-bottom: 14px; color: var(--forest); }
+.week-day { background: white; border-radius: 12px; padding: 14px 16px; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start; cursor: pointer; border: 1px solid rgba(0,0,0,.06); transition: all .15s; box-shadow: 0 1px 6px rgba(0,0,0,.04); }
+.week-day:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); transform: translateY(-1px); }
+.week-day.today-row { border-color: var(--forest); border-width: 2px; }
+.day-date-col { text-align: center; flex-shrink: 0; width: 42px; }
+.day-dow { font-size: 11px; color: var(--sage); font-weight: 600; text-transform: uppercase; }
+.day-num { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; line-height: 1; }
+.day-num.today-num { color: var(--forest); }
+.day-content { flex: 1; }
+.day-workout-name { font-size: 13px; font-weight: 600; }
+.day-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+.day-chevron { color: var(--sage); font-size: 18px; align-self: center; }
+.phase-section { margin-bottom: 24px; }
+.phase-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 12px 12px 0 0; margin-bottom: 1px; }
+.phase-name { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: white; }
+.phase-dates { font-size: 11px; color: rgba(255,255,255,.7); margin-top: 2px; }
+.phase-weeks { border: 1px solid rgba(0,0,0,.08); border-top: none; border-radius: 0 0 12px 12px; overflow: hidden; }
+.schedule-week { border-bottom: 1px solid rgba(0,0,0,.06); }
+.schedule-week:last-child { border-bottom: none; }
+.schedule-week-header { display: flex; align-items: center; padding: 12px 16px; background: white; gap: 10px; cursor: pointer; }
+.schedule-week-header:hover { background: var(--stone); }
+.sw-label { font-size: 12px; font-weight: 600; color: var(--forest); }
+.sw-dates { font-size: 11px; color: var(--sage); }
+.sw-chevron { margin-left: auto; font-size: 14px; color: var(--sage); transition: transform .2s; }
+.sw-expanded .sw-chevron { transform: rotate(90deg); }
+.schedule-week-days { display: none; }
+.sw-expanded .schedule-week-days { display: block; }
+.schedule-day { display: flex; gap: 10px; align-items: flex-start; padding: 10px 16px; border-top: 1px solid rgba(0,0,0,.04); cursor: pointer; background: var(--cream); transition: background .15s; }
+.schedule-day:hover { background: var(--stone); }
+.sd-date { font-size: 11px; color: var(--sage); font-weight: 600; width: 50px; flex-shrink: 0; padding-top: 1px; }
+.sd-content { flex: 1; }
+.sd-name { font-size: 12px; font-weight: 600; }
+.sd-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px; }
+.sd-chevron { color: #ccc; font-size: 14px; align-self: center; }
+.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: 1px solid var(--sage); color: var(--forest); border-radius: 8px; padding: 8px 14px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; margin-bottom: 16px; }
+.back-btn:hover { background: var(--stone); }
+.day-detail-header { background: linear-gradient(135deg,var(--forest),var(--pine)); color: white; border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+.ddh-dow { font-size: 11px; color: var(--mist); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+.ddh-date { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 900; line-height: 1; margin: 4px 0; }
+.ddh-phase { font-size: 11px; color: var(--amber); font-weight: 600; margin-bottom: 10px; }
+.ddh-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; line-height: 1.2; }
+.section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--sage); margin: 16px 0 8px; }
+.detail-item { display: flex; gap: 12px; padding: 12px; background: var(--stone); border-radius: 10px; margin-bottom: 8px; border-left: 3px solid var(--forest); }
+.detail-item.is-stretch { border-left-color: var(--sage); }
+.detail-item.is-yoga { border-left-color: #7B5EA7; }
+.detail-item.is-rest { border-left-color: var(--gold); }
+.detail-item.is-drive { border-left-color: #8B6914; }
+.detail-item.is-trip { border-left-color: var(--forest); background: #E8F5E9; }
+.di-icon { font-size: 20px; flex-shrink: 0; }
+.di-body { flex: 1; }
+.di-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.di-desc { font-size: 12px; color: #555; line-height: 1.5; }
+.di-duration { font-size: 11px; color: var(--sage); font-weight: 600; margin-top: 4px; }
+.note-box { background: #FFF8E1; border: 1px solid #FFD54F; border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #5D4037; line-height: 1.6; margin-bottom: 10px; display: flex; gap: 8px; }
+.trip-card { border-radius: 16px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,.1); }
+.trip-banner { padding: 20px; color: white; background: linear-gradient(135deg,var(--forest),var(--sage)); }
+.trip-banner.tsx { background: linear-gradient(135deg,var(--bark),#8B6914); }
+.trip-name { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 900; }
+.trip-dates { font-size: 12px; color: rgba(255,255,255,.8); margin-top: 3px; }
+.trip-days-num { font-family: 'Playfair Display', serif; font-size: 42px; font-weight: 900; color: var(--amber); line-height: 1; margin-top: 14px; }
+.trip-days-label { font-size: 12px; color: rgba(255,255,255,.8); }
+.trip-body { background: white; padding: 16px; }
+.trip-stat-row { display: flex; gap: 10px; margin-bottom: 12px; }
+.trip-stat { flex: 1; background: var(--stone); border-radius: 10px; padding: 10px; text-align: center; }
+.ts-val { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--forest); }
+.ts-label { font-size: 10px; color: var(--sage); margin-top: 2px; }
+.alt-warn { background: #FFF8E1; border: 1px solid #FFD54F; border-radius: 10px; padding: 10px 12px; font-size: 12px; color: #795548; display: flex; gap: 8px; align-items: flex-start; line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -765,828 +147,629 @@
 <header class="app-header">
   <div class="header-top">
     <div>
-      <div class="app-title">Trail Training</div>
-      <div class="app-subtitle">Indian Peaks · Trans-Sierra · 2026</div>
+      <div class="app-title">🏔 Trail Training</div>
+      <div class="app-subtitle" id="headerDate"></div>
     </div>
-    <div class="date-display">
-      <div class="date-day" id="hdr-day"></div>
-      <div class="date-month" id="hdr-month"></div>
+    <div class="countdown-pills">
+      <div class="pill"><span class="pill-num" id="ct1">—</span><span class="pill-label">Indian Peaks</span></div>
+      <div class="pill"><span class="pill-num" id="ct2">—</span><span class="pill-label">Trans-Sierra</span></div>
     </div>
   </div>
-  <nav class="nav-tabs">
-    <button class="nav-tab active" onclick="showView('today')">Today</button>
-    <button class="nav-tab" onclick="showView('week')">This Week</button>
-    <button class="nav-tab" onclick="showView('schedule')">Full Schedule</button>
-    <button class="nav-tab" onclick="showView('trips')">Trips</button>
-  </nav>
 </header>
 
-<main class="content">
+<nav class="nav">
+  <button class="nav-btn active" onclick="showView('today')">Today</button>
+  <button class="nav-btn" onclick="showView('week')">This Week</button>
+  <button class="nav-btn" onclick="showView('schedule')">Full Schedule</button>
+  <button class="nav-btn" onclick="showView('trips')">Trips</button>
+</nav>
 
-  <!-- ── TODAY VIEW ── -->
-  <div class="view active" id="view-today">
-    <div class="today-card" id="today-card">
-      <div class="today-header">
-        <div class="today-phase-badge" id="today-phase-badge"></div>
-        <div class="today-weekday" id="today-weekday"></div>
-        <div class="today-date-full" id="today-date-full"></div>
+<div class="view active content" id="view-today">
+  <div class="card">
+    <div class="today-date" id="todayDate"></div>
+    <div class="today-workout-title" id="todayTitle"></div>
+    <div class="phase-badge" id="todayPhase"></div>
+    <div class="workout-details" id="todayDetails"></div>
+  </div>
+  <div class="quote-card">
+    <div class="quote-text" id="quoteText"></div>
+    <div class="quote-attr" id="quoteAttr"></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:#E8F5E9;">📈</div>
+      <div><div class="card-title">Training Progress</div><div class="card-sub">Days until each expedition</div></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>🏔 Indian Peaks (Jul 26)</span><span id="prog1pct"></span></div>
+      <div class="progress-bar"><div class="progress-fill fill-ip" id="prog1bar"></div></div>
+    </div>
+    <div style="margin-top:12px" class="progress-wrap">
+      <div class="progress-label"><span>⛰ Trans-Sierra (Aug 21)</span><span id="prog2pct"></span></div>
+      <div class="progress-bar"><div class="progress-fill fill-tsx" id="prog2bar"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="view content" id="view-week">
+  <div class="week-header" id="weekHeader"></div>
+  <div id="weekDays"></div>
+</div>
+
+<div class="view content" id="view-schedule">
+  <div id="scheduleContent"></div>
+</div>
+
+<div class="view content" id="view-daydetail">
+  <button class="back-btn" id="backBtn" onclick="goBack()">← Back</button>
+  <div class="day-detail-header">
+    <div class="ddh-dow" id="ddDow"></div>
+    <div class="ddh-date" id="ddDate"></div>
+    <div class="ddh-phase" id="ddPhase"></div>
+    <div class="ddh-title" id="ddTitle"></div>
+  </div>
+  <div id="ddBody"></div>
+</div>
+
+<div class="view content" id="view-trips">
+  <div class="trip-card">
+    <div class="trip-banner">
+      <div class="trip-name">🏔 Indian Peaks Wilderness</div>
+      <div class="trip-dates">July 26–29, 2026 · Brainard Lake Counterclockwise Loop</div>
+      <div class="trip-days-num" id="ipDays">—</div>
+      <div class="trip-days-label">days away</div>
+    </div>
+    <div class="trip-body">
+      <div class="trip-stat-row">
+        <div class="trip-stat"><div class="ts-val">4</div><div class="ts-label">Trail Days</div></div>
+        <div class="trip-stat"><div class="ts-val">10–12.5k</div><div class="ts-label">Elevation ft</div></div>
+        <div class="trip-stat"><div class="ts-val">Jul 25</div><div class="ts-label">Arrive By</div></div>
+        <div class="trip-stat"><div class="ts-val">5,400</div><div class="ts-label">Acclim Stop ft</div></div>
       </div>
-      <div class="today-workout">
-        <div class="workout-label">TODAY'S TRAINING</div>
-        <div class="workout-name" id="today-activity"></div>
-        <div class="workout-detail" id="today-detail"></div>
-        <div class="workout-tags" id="today-tags"></div>
+      <div class="alt-warn">⚠️ <span>Brainard Lake ~10,500 ft; loop climbs above 12,000 ft. Stay at Denver/Boulder (5,400 ft) the night of Jul 24. Start Jul 26 conservatively. Drink water constantly. Eat carbohydrates. Headaches are normal.</span></div>
+    </div>
+  </div>
+  <div class="trip-card">
+    <div class="trip-banner tsx">
+      <div class="trip-name">⛰ Trans-Sierra Expedition</div>
+      <div class="trip-dates">August 21–29, 2026 · TSX Outfitter</div>
+      <div class="trip-days-num" id="tsxDays">—</div>
+      <div class="trip-days-label">days away</div>
+    </div>
+    <div class="trip-body">
+      <div class="trip-stat-row">
+        <div class="trip-stat"><div class="ts-val">9</div><div class="ts-label">Trail Days</div></div>
+        <div class="trip-stat"><div class="ts-val">11–13k+</div><div class="ts-label">Elevation ft</div></div>
+        <div class="trip-stat"><div class="ts-val">TSX</div><div class="ts-label">Outfitter</div></div>
+        <div class="trip-stat"><div class="ts-val">Aug 20</div><div class="ts-label">Pack & Rest</div></div>
       </div>
-    </div>
-
-    <div class="encouragement-card">
-      <div class="encouragement-label">✦ Daily Encouragement</div>
-      <div class="encouragement-text" id="encouragement-text"></div>
-    </div>
-
-    <div class="progress-section">
-      <div class="progress-title">Season Progress</div>
-      <div id="progress-bars"></div>
+      <div class="alt-warn" style="background:#FFF3E0;border-color:#FFB74D;color:#5D4037;">🗻 <span>Higher and longer than Indian Peaks. Residual acclimatization from July fades in 3–4 weeks — start Day 1 conservatively. Hydrate 4+ liters/day through Day 3. Communicate with TSX guides about how you feel.</span></div>
     </div>
   </div>
-
-  <!-- ── WEEK VIEW ── -->
-  <div class="view" id="view-week">
-    <div class="week-card" id="week-card">
-      <div class="week-card-header">
-        <div class="week-card-title" id="week-title"></div>
-        <div class="week-card-phase" id="week-phase"></div>
-      </div>
-      <div class="week-days" id="week-days"></div>
-    </div>
-  </div>
-
-  <!-- ── SCHEDULE VIEW ── -->
-  <div class="view" id="view-schedule">
-    <div id="schedule-content"></div>
-  </div>
-
-  <!-- ── TRIPS VIEW ── -->
-  <div class="view" id="view-trips">
-    <div id="trips-content"></div>
-  </div>
-
-</main>
+</div>
 
 <script>
 // ════════════════════════════════════════════════════════════
-// DATA
+//  STRETCH / YOGA LIBRARY
 // ════════════════════════════════════════════════════════════
+const SL = {
+  easy: { name:"Easy Recovery Stretch", emoji:"🧘", type:"stretch", duration:"10 min",
+    desc:"Hip flexor stretch, quad stretch, hamstring stretch, calf stretch, chest opener. Hold each 30 sec × 2 sides. Perfect before bed or after any easy activity." },
+  standard: { name:"Standard Flexibility Routine", emoji:"🧘", type:"stretch", duration:"15 min",
+    desc:"Hip flexors, hamstrings, calves, IT band / pigeon pose, glute stretch, thoracic rotation, ankle circles. Hold each 30–45 sec. Do after workouts while muscles are warm." },
+  full: { name:"Full Mobility & Stretch", emoji:"🧘", type:"stretch", duration:"20 min",
+    desc:"Complete lower-body sequence: hip flexors, hamstrings, calves, glutes (pigeon), IT band, hip circles. Upper body: thoracic rotation, shoulder/chest, lat stretch. Spend extra time on any tight areas from today's effort." },
+  yoga: { name:"Active Recovery Yoga", emoji:"🧘‍♂️", type:"yoga", duration:"30 min",
+    desc:"Sun salutation warm-up → warrior sequence → triangle → low lunge → pigeon pose → supine twists → legs-up-wall. Flow slowly — focus on breath, hip opening, and spinal mobility." },
+  restYoga: { name:"Restorative Yoga", emoji:"🧘‍♂️", type:"yoga", duration:"30–45 min",
+    desc:"Yin-style long holds: butterfly, reclined pigeon, supported bridge, supine spinal twist, happy baby, savasana. Hold each 2–5 min. Ideal on rest days — enhances recovery and long-term flexibility." }
+};
 
+// ════════════════════════════════════════════════════════════
+//  PHASE DEFINITIONS
+// ════════════════════════════════════════════════════════════
 const PHASES = [
-  { id:'p1',  label:'Phase 1: Base Build',       dates:'Mar 13 – May 25',   color:'#2C5F2E', cls:'p1'  },
-  { id:'vac', label:'Vacation',                  dates:'May 26 – Jun 6',    color:'#5D4037', cls:'vac' },
-  { id:'p2',  label:'Phase 2: Build & Specificity', dates:'Jun 7 – Jul 12', color:'#1565C0', cls:'p2'  },
-  { id:'p3',  label:'Phase 3: Peak & Taper',     dates:'Jul 13 – Jul 23',   color:'#8B6914', cls:'p3'  },
-  { id:'drive1',label:'Drive to Colorado',        dates:'Jul 24–25',         color:'#37474F', cls:'trip'},
-  { id:'trip1',label:'Indian Peaks Wilderness',   dates:'Jul 26 – Jul 29',   color:'#1B4332', cls:'trip'},
-  { id:'drive2',label:'Drive Home',               dates:'Jul 30–31',         color:'#37474F', cls:'trip'},
-  { id:'p4',  label:'Phase 4: Recovery',         dates:'Aug 1 – Aug 13',    color:'#6A1E55', cls:'p4'  },
-  { id:'p5',  label:'Phase 5: Trans-Sierra Prep',dates:'Aug 14 – Aug 20',   color:'#B71C1C', cls:'p5'  },
-  { id:'trip2',label:'Trans-Sierra Expedition',  dates:'Aug 21 – Aug 29',   color:'#1B4332', cls:'trip'},
-  { id:'p6',  label:'Phase 6: Maintenance',      dates:'Sep 1 onward',      color:'#00695C', cls:'p6'  },
-];
-
-// Weekly schedule: each week has start date (Monday) and 7 days Sun=0..Sat=6 -> Mon-Sun array
-// Format: [phase, weekLabel, weekDates, [Mon,Tue,Wed,Thu,Fri,Sat,Sun]]
-// Each day: { activity, detail, tags[], type: 'training'|'rest'|'trip'|'light' }
-function d(a, det='', tags=[]) { return {activity:a, detail:det, tags}; }
-function rest() { return {activity:'Rest', detail:'Full rest. Sleep 8+ hrs.', tags:['Recovery'], type:'rest'}; }
-function walk(t='30') { return {activity:'Easy Walk', detail:`${t} min easy walk. Active recovery.`, tags:['Recovery','Low Impact']}; }
-
-const WEEKS = [
-  // ── PHASE 1 ─────────────────────────────────────────────────────────────────
-  { phase:'p1', label:'Week 1', dates:'Mar 13–15', note:'Starting strong. Every workout you complete this week is a deposit in the bank for July.',
-    days:[
-      d('Gym: Legs & Core','Squats, lunges, step-ups, Romanian deadlifts, planks. 45–60 min.',['Strength','Legs']),
-      d('Cardio','45 min moderate effort. Bike, elliptical, or brisk walk. Conversational pace.',['Cardio','Aerobic']),
-      d('Hills/Trail','1.5–2 hrs moderate pace. No pack yet. Focus on steady uphill effort.',['Hiking','Aerobic']),
-      d('Gym: Full Body','Upper body pulling, hip hinges, rotational core, glute bridges. 45 min.',['Strength','Core']),
-      walk('30'),
-      d('Loaded Hike','2 hrs / 15 lb pack. Choose hilly terrain. First taste of pack weight.',['Hiking','Loaded','Key Session']),
-      rest()
-    ]},
-  { phase:'p1', label:'Week 2', dates:'Mar 16–22', note:'Routine is forming. Show up even when you don\'t feel like it — those are the sessions that matter most.',
-    days:[
-      d('Gym: Legs & Core','Squats, lunges, step-ups, Romanian deadlifts, planks. 45–60 min.',['Strength','Legs']),
-      d('Cardio','45 min moderate effort.',['Cardio']),
-      d('Hills/Trail','1.5–2 hrs. Light pack (15 lbs).',['Hiking']),
-      d('Gym: Full Body','Upper body, hip hinges, core. 45 min.',['Strength','Core']),
-      walk('30'),
-      d('Loaded Hike','2 hrs / 15 lb pack. Add 200–300 ft more elevation than last week.',['Hiking','Loaded','Key Session']),
-      rest()
-    ]},
-  { phase:'p1', label:'Week 3', dates:'Mar 23–29', note:'You\'re building something real. The trail is already getting closer.',
-    days:[
-      d('Gym: Legs & Core','Increase weight on squats and step-ups.',['Strength','Legs']),
-      d('Cardio','50 min moderate effort.',['Cardio']),
-      d('Hills w/ Pack','1.5–2 hrs with 15 lb pack.',['Hiking','Loaded']),
-      d('Gym: Full Body','Focus on single-leg stability today.',['Strength','Core']),
-      walk('30'),
-      d('Loaded Hike','2.5 hrs / 18 lb pack. Push the climbs.',['Hiking','Loaded','Key Session']),
-      rest()
-    ]},
-  { phase:'p1', label:'Week 4', dates:'Mar 30–Apr 5', note:'A month in. You\'re more prepared than you were three weeks ago. Keep going.',
-    days:[
-      d('Gym: Legs & Core','Strong effort today.',['Strength','Legs']),
-      d('Cardio','50 min.',['Cardio']),
-      d('Hills w/ Pack','15 lb pack. Find a steeper route.',['Hiking','Loaded']),
-      d('Gym: Full Body','Core and hip stability focus.',['Strength','Core']),
-      walk('30'),
-      d('Loaded Hike','2.5 hrs / 18 lb pack.',['Hiking','Loaded','Key Session']),
-      rest()
-    ]},
-  { phase:'p1', label:'Week 5', dates:'Apr 6–12', note:'The pack is getting heavier. Your body is adapting. That\'s the whole point.',
-    days:[
-      d('Gym: Legs & Core','Add weight. You can handle it.',['Strength','Legs']),
-      d('Cardio','55 min.',['Cardio']),
-      d('Hills w/ Pack','18 lb pack.',['Hiking','Loaded']),
-      d('Gym: Full Body','45 min solid effort.',['Strength','Core']),
-      walk('30'),
-      d('Loaded Hike','3 hrs / 20 lb pack. Target 1,500+ ft gain.',['Hiking','Loaded','Key Session']),
-      rest()
-    ]},
-  { phase:'p1', label:'Week 6', dates:'Apr 13–19', note:'April is your foundation month. What you build here carries you over the passes in July.',
-    days:[
-      d('Gym: Legs & Core','Strong legs session.',['Strength','Legs']),
-      d('Cardio','55 min.',['Cardio']),
-      d('Hills w/ Pack','18 lb pack. Steady effort.',['Hiking','Loaded']),
-      d('Gym: Full Body','Core focus.',['Strength','Core']),
-      walk('30'),
-      d('Loaded Hike','3 hrs / 20 lb pack.',['Hiking','Loaded','Key Session']),
-      rest()
-    ]},
-  { phase:'p1', label:'Week 7', dates:'Apr 20–26', note:'Over halfway through Phase 1. You\'re doing the work that most people never do.',
-    days:[
-      d('Gym: Legs & Core','Strong session. Full range of motion on every rep.',['Strength','Legs']),
-      d('Cardio','60 min. You\'ve earned this longer session.',['Cardio']),
-      d('Hills w/ Pack','20 lb pack.',['Hiking','Loaded']),
-      d('Gym: Full Body','Quality over speed today.',['Strength','Core']),
-      walk('30'),
-      d('Loaded Hike','3.5 hrs / 22 lb pack. You\'re getting strong.',['Hiking','Loaded','Key Session']),
-      rest()
-    ]},
-  { phase:'p1', label:'Week 8', dates:'Apr 27–May 3', note:'May is in sight. The trips are taking shape. Your legs are getting trail-ready.',
-    days:[
-      d('Gym: Legs & Core','Bulgarian split squats today — a preview of Phase 2.',['Strength','Legs']),
-      d('Cardio','60 min.',['Cardio']),
-      d('Hills w/ Pack','20 lb pack.',['Hiking','Loaded']),
-      d('Gym: Full Body','45 min.',['Strength','Core']),
-      walk('30'),
-      d('Loaded Hike','3.5 hrs / 22 lb pack.',['Hiking','Loaded','Key Session']),
-      rest()
-    ]},
-  { phase:'p1', label:'Week 9', dates:'May 4–10', note:'The hikes are getting serious. Every foot of elevation you gain this week is training for 12,000 ft passes.',
-    days:[
-      d('Gym: Legs & Core','Strong session. Focus on depth and control.',['Strength','Legs']),
-      d('Cardio','60 min.',['Cardio']),
-      d('Hills w/ Pack','22 lb pack.',['Hiking','Loaded']),
-      d('Gym: Full Body','Single-leg focus.',['Strength','Core']),
-      walk('30'),
-      d('Loaded Hike','4 hrs / 25 lb pack. Target 2,000+ ft gain.',['Hiking','Loaded','Key Session']),
-      rest()
-    ]},
-  { phase:'p1', label:'Week 10', dates:'May 11–17', note:'You\'re carrying real weight now. How does it feel? Good — because you earned this.',
-    days:[
-      d('Gym: Legs & Core','Max effort today.',['Strength','Legs']),
-      d('Cardio','60 min.',['Cardio']),
-      d('Hills w/ Pack','22 lb pack. Steep route.',['Hiking','Loaded']),
-      d('Gym: Full Body','Core stability and rotational work.',['Strength','Core']),
-      walk('30'),
-      d('Loaded Hike','4 hrs / 25 lb pack.',['Hiking','Loaded','Key Session']),
-      rest()
-    ]},
-  { phase:'p1', label:'Week 11', dates:'May 18–24', note:'Final push of Phase 1. You\'re almost ready for vacation — and you\'ve earned it.',
-    days:[
-      d('Gym: Legs & Core','Strong finish to Phase 1 gym work.',['Strength','Legs']),
-      d('Cardio','60 min.',['Cardio']),
-      d('Hills w/ Pack','25 lb pack. Best effort.',['Hiking','Loaded']),
-      d('Gym: Full Body','Quality session.',['Strength','Core']),
-      walk('30'),
-      d('Loaded Hike','4 hrs / 28 lb pack. You\'re ready for Phase 2.',['Hiking','Loaded','Key Session']),
-      {activity:'Easy Walk', detail:'Short 20 min walk. Wind down before vacation.', tags:['Recovery'], type:'light'}
-    ]},
-
-  // ── VACATION ───────────────────────────────────────────────────────────────
-  { phase:'vac', label:'Vacation Wk 1', dates:'May 26–31', note:'You\'ve earned this vacation. Move when you can, rest when you need to. You won\'t lose fitness in 12 days.',
-    days:[
-      walk('45'),
-      walk('45'),
-      d('Hike if available','Easy hike if opportunity arises. No pressure.',['Light','Optional']),
-      walk('45'),
-      rest(),
-      d('Easy Hike or Walk','Whatever is available and enjoyable.',['Light']),
-      rest()
-    ]},
-  { phase:'vac', label:'Vacation Wk 2', dates:'Jun 1–6', note:'Almost back. Keep moving a little each day and you\'ll return fresh and ready for Phase 2.',
-    days:[
-      walk('45'),
-      walk('45'),
-      d('Hike if available','Easy hike if available.',['Light','Optional']),
-      walk('45'),
-      rest(),
-      d('Easy Hike or Walk','Get outside if you can.',['Light']),
-      rest()
-    ]},
-
-  // ── PHASE 2 ─────────────────────────────────────────────────────────────────
-  { phase:'p2', label:'Week 12', dates:'Jun 7–13', note:'Welcome to Phase 2. This is where your preparation goes to a new level. Back-to-back weekends start now.',
-    days:[
-      d('Gym: Split Squats','Bulgarian split squats, weighted step-ups, hip hinges, lateral band work.',['Strength','Legs']),
-      d('Cardio','60 min moderate effort.',['Cardio']),
-      d('Hill Repeats / 25lb','45–60 min sustained climbing with 25 lb pack. Steepest route available.',['Hiking','Loaded','Hard']),
-      d('Gym: Stability','Single-leg balance, rotational core, glute work. Quality over speed.',['Strength','Core']),
-      walk('30'),
-      d('Long Hike / 30lb','4.5 hrs with 30 lb pack. 2,500+ ft elevation gain. This is your key session.',['Hiking','Loaded','Key Session']),
-      d('Back-to-Back / 20lb','2 hrs easy pace, 20 lb pack. Moving on tired legs. This is what the trail demands.',['Hiking','Loaded','Recovery'])
-    ]},
-  { phase:'p2', label:'Week 13', dates:'Jun 14–20', note:'The back-to-back is teaching your body something no single long run can teach. Stay with it.',
-    days:[
-      d('Gym: Split Squats','Increase weight on step-ups.',['Strength','Legs']),
-      d('Cardio','60 min.',['Cardio']),
-      d('Hill Repeats / 25lb','45–60 min. Find a new steep route.',['Hiking','Loaded','Hard']),
-      d('Gym: Stability','Hip abductors and single-leg work.',['Strength','Core']),
-      walk('30'),
-      d('Long Hike / 30lb','5 hrs / 30 lb pack. Push the pace on climbs.',['Hiking','Loaded','Key Session']),
-      d('Back-to-Back / 20lb','2 hrs easy. You\'re simulating a multi-day trip.',['Hiking','Loaded','Recovery'])
-    ]},
-  { phase:'p2', label:'Week 14', dates:'Jun 21–27', note:'Midsummer. The hills know your name now. Indian Peaks is 5 weeks away.',
-    days:[
-      d('Gym: Split Squats','Strong session.',['Strength','Legs']),
-      d('Cardio','60 min.',['Cardio']),
-      d('Hill Repeats / 28lb','28 lb pack. Increase duration to 60 min.',['Hiking','Loaded','Hard']),
-      d('Gym: Stability','Core and stability.',['Strength','Core']),
-      walk('30'),
-      d('Long Hike / 32lb','5 hrs / 32 lb pack. 3,000+ ft elevation gain if possible.',['Hiking','Loaded','Key Session']),
-      d('Back-to-Back / 22lb','2.5 hrs / 22 lb pack.',['Hiking','Loaded','Recovery'])
-    ]},
-  { phase:'p2', label:'Week 15', dates:'Jun 28–Jul 4', note:'July. The mountains are waiting. You\'re almost ready.',
-    days:[
-      d('Gym: Split Squats','Peak Phase 2 gym session.',['Strength','Legs']),
-      d('Cardio','60 min.',['Cardio']),
-      d('Hill Repeats / 28lb','28 lb pack. Hard effort.',['Hiking','Loaded','Hard']),
-      d('Gym: Stability','Quality work.',['Strength','Core']),
-      walk('30'),
-      d('Long Hike / 33lb','5 hrs / 33 lb pack. One of your hardest training days.',['Hiking','Loaded','Key Session']),
-      d('Back-to-Back / 25lb','2.5 hrs / 25 lb pack. You\'ve earned this.',['Hiking','Loaded','Recovery'])
-    ]},
-  { phase:'p2', label:'Week 16', dates:'Jul 5–12', note:'Final Phase 2 week. You\'re as fit as you\'ve been. Now we sharpen the blade.',
-    days:[
-      d('Gym: Split Squats','Final big gym session before tapering.',['Strength','Legs']),
-      d('Cardio','60 min.',['Cardio']),
-      d('Hill Repeats / 30lb','30 lb pack. Give it everything.',['Hiking','Loaded','Hard']),
-      d('Gym: Stability','Strong core session.',['Strength','Core']),
-      walk('30'),
-      d('Long Hike / 35lb','5.5 hrs / 35 lb pack. Full trip weight. This is the test.',['Hiking','Loaded','Key Session']),
-      d('Back-to-Back / 25lb','2.5 hrs / 25 lb pack. Final back-to-back before taper.',['Hiking','Loaded','Recovery'])
-    ]},
-
-  // ── PHASE 3 ─────────────────────────────────────────────────────────────────
-  { phase:'p3', label:'Week 17 — PEAK', dates:'Jul 13–19', note:'This is your biggest week. Leave everything on the trail Saturday. Then it\'s taper time.',
-    days:[
-      d('Gym: Moderate','Legs and core. Solid but not max effort.',['Strength','Legs']),
-      d('Cardio','45 min.',['Cardio']),
-      d('Easy Hike','90 min, easy pace. Keep legs fresh for the weekend.',['Hiking','Light']),
-      rest(),
-      rest(),
-      d('BIG HIKE / 35lb','6+ hrs with 35 lb pack. Maximum elevation gain. This is your peak session.',['Hiking','Loaded','Key Session','Peak']),
-      d('Recovery Hike','2.5 hrs easy. Final back-to-back. The work is done.',['Hiking','Recovery'])
-    ]},
-  { phase:'p3', label:'Week 18 — TAPER', dates:'Jul 20–23', note:'Taper is not weakness — it\'s strategy. Trust it completely. The fitness is locked in.',
-    days:[
-      walk('30'),
-      rest(),
-      rest(),
-      {activity:'Rest / Pack Gear', detail:'Pack your backpack. Check your gear list. Charge electronics. Get excited.', tags:['Prep']},
-      {activity:'DRIVE DAY', detail:'Drive Bay Area to Denver/Boulder. Plan overnight stop at 5,400 ft for acclimatization.', tags:['Travel']},
-      {activity:'Acclimatization Day', detail:'Easy walk near Denver or Boulder area. Hydrate aggressively. No alcohol. Rest.', tags:['Altitude','Prep']},
-      {activity:'Arrival at Brainard Lake', detail:'Drive up to trailhead. Arrive, settle in, final gear check. Light walk only. Sleep early.', tags:['Travel','Prep']}
-    ]},
-
-  // ── TRIP 1 ─────────────────────────────────────────────────────────────────
-  { phase:'trip1', label:'INDIAN PEAKS', dates:'Jul 26–29', note:'You are ready. Trust your training. Start slow, drink water, take in every view. This is what it\'s all been for.',
-    days:[
-      {activity:'Day 1 on Trail', detail:'Start the Brainard Lake counterclockwise loop. Conservative pace. Drink water constantly. You\'re at 10,500+ ft.', tags:['Hike','Trip 1']},
-      {activity:'Day 2 on Trail', detail:'Finding your altitude legs. Steady pace. Eat enough. Take photos.', tags:['Hike','Trip 1']},
-      {activity:'Day 3 on Trail', detail:'You\'re in the heart of it. The training paid off.', tags:['Hike','Trip 1']},
-      {activity:'Day 4 — Return', detail:'Last day on trail. Finish the loop back to Brainard Lake. You did it.', tags:['Hike','Trip 1']},
-      {activity:'Drive Home Day 1', detail:'Colorado to California. Rest stops, real food, rehydrate. Sleep 8+ hrs tonight.', tags:['Travel']},
-      {activity:'Drive Home Day 2', detail:'Finish the drive. You\'re home. Indian Peaks is in the books.', tags:['Travel']},
-      rest()
-    ]},
-
-  // ── PHASE 4 ─────────────────────────────────────────────────────────────────
-  { phase:'p4', label:'Week 22 — Recovery', dates:'Aug 1–7', note:'Your body just did something significant. Let it absorb the work. Sleep is your training this week.',
-    days:[
-      walk('30'),
-      walk('30'),
-      walk('45'),
-      walk('30'),
-      rest(),
-      {activity:'Easy Hike', detail:'90 min, no pack. Just move and enjoy being home.', tags:['Light','Recovery']},
-      rest()
-    ]},
-  { phase:'p4', label:'Week 23 — Rebuild', dates:'Aug 8–13', note:'The trip made you fitter. Now let\'s verify it. You should feel surprisingly good this week.',
-    days:[
-      d('Gym: Moderate','Legs and full body. 45 min, moderate weight.',['Strength']),
-      d('Cardio','45 min. See how your aerobic engine feels post-trip.',['Cardio']),
-      d('Trail Hike / 25lb','3 hrs with 25 lb pack. Verify your fitness.',['Hiking','Loaded']),
-      d('Gym: Moderate','Quality session. Core and stability.',['Strength','Core']),
-      rest(),
-      d('Hike / 25lb','4 hrs / 25 lb pack. You\'re getting ready for the main event.',['Hiking','Loaded','Key Session']),
-      d('Recovery Hike','90 min easy. Optional back-to-back.',['Hiking','Recovery'])
-    ]},
-
-  // ── PHASE 5 ─────────────────────────────────────────────────────────────────
-  { phase:'p5', label:'Week 24 — FINAL PREP', dates:'Aug 14–20', note:'One final push, then trust the taper. The Trans-Sierra is 7 days away. You\'re ready for this.',
-    days:[
-      d('Gym: Legs+Core','Final meaningful gym session of the season.',['Strength','Legs']),
-      d('Cardio','45 min. Feel your engine.',['Cardio']),
-      d('Loaded Hike / 30lb','2 hrs / 30 lb pack. Shake out the legs.',['Hiking','Loaded']),
-      rest(),
-      walk('30'),
-      d('BIG HIKE / 35lb','5.5 hrs / 35 lb pack. Final long effort. Make it count.',['Hiking','Loaded','Key Session']),
-      d('Recovery + Taper','2 hrs easy back-to-back. Then begin final taper. Pack gear tonight.',['Hiking','Recovery','Prep'])
-    ]},
-
-  // ── TRIP 2 ─────────────────────────────────────────────────────────────────
-  { phase:'trip2', label:'TRANS-SIERRA', dates:'Aug 21–29', note:'Nine days in the high Sierra. You have done everything right. Now go live in those mountains.',
-    days:[
-      {activity:'Day 1 — Trans-Sierra', detail:'TSX Day 1. Start conservatively. Altitude is real at 11,000+ ft. Hydrate aggressively.', tags:['Hike','Trip 2']},
-      {activity:'Day 2 — Trans-Sierra', detail:'Finding altitude rhythm. Eat enough carbohydrates. Slow and steady wins here.', tags:['Hike','Trip 2']},
-      {activity:'Day 3 — Trans-Sierra', detail:'You\'re in it now. The hard acclimatization days are behind you.', tags:['Hike','Trip 2']},
-      {activity:'Day 4 — Trans-Sierra', detail:'Midpoint building. Your training is showing.', tags:['Hike','Trip 2']},
-      {activity:'Day 5 — Trans-Sierra', detail:'High passes. Take them one step at a time. You\'ve climbed thousands of feet training for this.', tags:['Hike','Trip 2']},
-      {activity:'Day 6 — Trans-Sierra', detail:'Deep in the range. Nothing like it in the world.', tags:['Hike','Trip 2']},
-      {activity:'Day 7 — Trans-Sierra', detail:'The end is in sight. Let it sink in — you did this.', tags:['Hike','Trip 2']}
-    ]},
-
-  // ── PHASE 6 ─────────────────────────────────────────────────────────────────
-  { phase:'p6', label:'Sep Recovery', dates:'Sep 1–14', note:'You just completed two major trips. This is one of the great feelings in outdoor life. Rest is the right answer.',
-    days:[
-      walk('30'),
-      walk('30'),
-      walk('45'),
-      walk('30'),
-      rest(),
-      {activity:'Easy Hike', detail:'No pack. Just enjoy being outside. You\'ve earned unstructured trail time.', tags:['Light']},
-      rest()
-    ]},
-  { phase:'p6', label:'Sep Rebuild', dates:'Sep 15–30', note:'The season is winding down. Stay connected to the trail and the gym. 2027 starts now.',
-    days:[
-      d('Gym: Moderate','2x per week gym resumes. Legs and core.',['Strength']),
-      d('Cardio','40 min. Easy aerobic.',['Cardio']),
-      d('Trail Hike','2.5–3 hrs, light pack or no pack.',['Hiking']),
-      d('Gym: Moderate','Quality session.',['Strength','Core']),
-      rest(),
-      d('Monthly Long Hike','3 hrs+ with light pack. Keep the trail connection alive.',['Hiking','Key Session']),
-      rest()
-    ]},
-  { phase:'p6', label:'Oct–Nov Maintenance', dates:'Oct–Nov', note:'Fall maintenance. Two gym sessions, one long hike per month, one cardio. That\'s all you need to hold your fitness.',
-    days:[
-      d('Gym 2x/week','Legs, core, and upper body. Maintain your strength base.',['Strength']),
-      d('Cardio','1x per week aerobic.',['Cardio']),
-      d('Trail Hike','Monthly long hike — keep the legs trail-ready.',['Hiking']),
-      rest(),
-      rest(),
-      d('Outdoor Activity','Hiking, snowshoeing, or whatever the season offers.',['Active']),
-      rest()
-    ]},
-  { phase:'p6', label:'Dec–Feb Winter', dates:'Dec–Feb', note:'Winter is not off-season — it\'s cross-training season. Skiing and snowboarding both build the legs you need for 2027.',
-    days:[
-      d('Gym 2x/week','Maintain strength. Two sessions per week keeps nearly all your gains.',['Strength']),
-      d('Cardio / Ski','Skiing and snowboarding count as training.',['Cardio','Winter']),
-      d('Snowshoe/Ski','Outdoor winter activity. Loaded snowshoeing is excellent backpacking prep.',['Winter','Active']),
-      d('Gym or rest','Second gym session or full rest.',['Strength']),
-      rest(),
-      d('Ski / Snowboard','Your Saturday long session, winter edition.',['Winter','Key Session']),
-      rest()
-    ]},
-  { phase:'p6', label:'March 2027 — Begin Again', dates:'Mar 2027', note:'Here we go again. You\'re starting from a stronger base than last year. Plan the trips. Build the plan. Show up.',
-    days:[
-      d('Begin 2027 Phase 1','Start the training cycle again.',['Planning']),
-      d('Cardio','Aerobic base building.',['Cardio']),
-      d('Trail Hike','First Phase 1 hike of the new season.',['Hiking']),
-      d('Gym','Legs and core.',['Strength']),
-      walk('30'),
-      d('Loaded Hike','Begin progressive loading again.',['Hiking','Loaded']),
-      rest()
-    ]},
+  { name:"Phase 1 – Base Build",          color:"#2C5F2E", emoji:"🌱", start:"2026-03-13", end:"2026-05-25" },
+  { name:"Vacation",                      color:"#8B6914", emoji:"🌿", start:"2026-05-26", end:"2026-06-06" },
+  { name:"Phase 2 – Build & Specificity", color:"#1B6CA8", emoji:"🏃", start:"2026-06-07", end:"2026-07-12" },
+  { name:"Phase 3 – Peak & Taper",        color:"#7B2D8B", emoji:"📈", start:"2026-07-13", end:"2026-07-23" },
+  { name:"Drive to Colorado",             color:"#5C4033", emoji:"🚗", start:"2026-07-24", end:"2026-07-25" },
+  { name:"Trip 1: Indian Peaks",          color:"#1B4332", emoji:"⛺", start:"2026-07-26", end:"2026-07-29" },
+  { name:"Drive Home",                    color:"#5C4033", emoji:"🚗", start:"2026-07-30", end:"2026-07-31" },
+  { name:"Phase 4 – Recovery & Rebuild",  color:"#2E7D52", emoji:"💚", start:"2026-08-01", end:"2026-08-13" },
+  { name:"Phase 5 – Trans-Sierra Prep",   color:"#B94040", emoji:"🔥", start:"2026-08-14", end:"2026-08-20" },
+  { name:"Trip 2: Trans-Sierra",          color:"#5C4033", emoji:"⛰",  start:"2026-08-21", end:"2026-08-29" },
+  { name:"Phase 6 – Maintenance",         color:"#546E7A", emoji:"🌊", start:"2026-09-01", end:"2027-03-31" },
 ];
 
 // ════════════════════════════════════════════════════════════
-// ENCOURAGEMENT
+//  DATE HELPERS
 // ════════════════════════════════════════════════════════════
-
-const QUOTES = [
-  "The mountains don't care how tired you are. But they do reward every step you take toward them.",
-  "Every weighted hike you complete this spring is a stone in the path that leads you over a 12,000-foot pass.",
-  "You're not training to survive the trips. You're training to thrive on them.",
-  "The Brainard Lake loop and the Trans-Sierra are waiting for someone who showed up when it was inconvenient. Be that person.",
-  "Strong legs on the trail are built in the gym and on the hills months before the trip. Today is that day.",
-  "There is no better investment than the work you put in between now and July 26.",
-  "On the hard days, remember: the trail will be hard too. This is practice.",
-  "The Sierra Nevada doesn't negotiate. But it generously rewards those who prepare.",
-  "One day at a time. One summit at a time. One footstep at a time.",
-  "Comfort zone is what you left behind. High altitude is what you're heading toward.",
-  "The view from a 12,500-foot pass is worth every step-up, every hill repeat, every loaded hike.",
-  "You're building the kind of fitness that lets you move through wild places with confidence. That's rare.",
-  "Consistency is the engine. Every session — even the unremarkable ones — moves the needle.",
-  "The tippet stays on the reel in July. Right now, the training is the adventure.",
-  "Great backpacking trips are made mostly before the trailhead. Keep building.",
-  "Your future self — standing at the top of a Sierra pass — is grateful for what you're doing today.",
-  "The hills near home are training for the passes you can't yet see. Keep climbing them.",
-  "Pack weight gets lighter the stronger you get. You're getting stronger.",
-  "Water, elevation, repetition. That's the formula. You're executing it.",
-  "Brainard Lake is 10,500 feet. The Trans-Sierra is higher. You live at sea level. This training is your bridge.",
-  "There are no shortcuts to the places worth going. There's just the work, done with intention.",
-  "Some days the training feels easy. Some days it doesn't. Both are exactly what you need.",
-  "The miles you log this spring are the reason July will feel like freedom.",
-  "A year from now you'll have two completed high-altitude trips and a stronger foundation for everything that comes next.",
-  "Good things happen to people who carry heavy packs up steep hills in the rain. Keep going.",
-  "The fitness you're building now doesn't just serve July and August. It serves every trail you'll ever walk.",
-  "You don't need to feel ready. You need to show up. Readiness follows.",
-  "The mountains are patient. So is the training process. Trust both.",
-  "What you do in the next few months determines who stands at the top of those Sierra passes.",
-  "Every back-to-back weekend is a small version of the real thing. You're rehearsing greatness.",
-  "The Trans-Sierra demands 9 days of sustained effort. You're building the body that can give it.",
-  "September will come. You'll look back on every session you completed and understand exactly why it mattered.",
-];
+function pd(s){ const[y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function ds(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function addD(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+function addDS(s,n){ return ds(addD(pd(s),n)); }
+function today(){ return new Date(); }
+function todayS(){ return ds(today()); }
+function daysBetween(a,b){ return Math.round((b-a)/86400000); }
+function sow(d){ const r=new Date(d); r.setDate(r.getDate()-r.getDay()); return r; }
+function getPhase(dateStr){ return PHASES.find(p=>dateStr>=p.start&&dateStr<=p.end)||null; }
 
 // ════════════════════════════════════════════════════════════
-// UTILITIES
+//  SCHEDULE DATA (faithful to Word doc)
 // ════════════════════════════════════════════════════════════
+function buildSchedule(){
+  const S={};
+  function set(dateStr,name,tags,items,stretch){ S[dateStr]={name,tags,items,stretch}; }
 
-function getToday() {
-  return new Date();
-}
-
-function getMondayOfWeek(date) {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  d.setDate(diff);
-  d.setHours(0,0,0,0);
-  return d;
-}
-
-// Parse "Mar 13" style dates → Date object in 2026 (or 2027 if month < 3)
-function parseDate(str, baseYear = 2026) {
-  const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-  if (!str || str.includes('–') || str.includes('Oct') && str.includes('Nov')) return null;
-  const parts = str.trim().split(' ');
-  if (parts.length < 2) return null;
-  const mon = months[parts[0]];
-  const day = parseInt(parts[1]);
-  if (mon === undefined || isNaN(day)) return null;
-  const year = (parts[0] === 'Mar' && baseYear === 2027) ? 2027 : baseYear;
-  return new Date(year, mon, day);
-}
-
-// Get the week index for a given date
-function getWeekIndex(date) {
-  const weekStarts = WEEKS.map(w => {
-    const dateStr = w.dates.split('–')[0].trim();
-    return parseDate(dateStr);
-  });
-  let best = 0;
-  for (let i = 0; i < weekStarts.length; i++) {
-    if (!weekStarts[i]) continue;
-    if (weekStarts[i] <= date) best = i;
-    else break;
-  }
-  return best;
-}
-
-// Get phase config
-function getPhase(phaseId) {
-  return PHASES.find(p => p.id === phaseId) || PHASES[0];
-}
-
-// Get day of week index (0=Mon ... 6=Sun)
-function getDayIndex(date) {
-  const d = date.getDay();
-  return d === 0 ? 6 : d - 1;
-}
-
-const WEEKDAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-const WEEKDAYS_SHORT = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
-function formatFullDate(date) {
-  return `${WEEKDAYS[getDayIndex(date)]}, ${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
-}
-
-function getDaysBetween(a, b) {
-  return Math.ceil((b - a) / (1000 * 60 * 60 * 24));
-}
-
-// Consistent daily quote based on day-of-year
-function getDailyQuote(date) {
-  const start = new Date(date.getFullYear(), 0, 0);
-  const diff = date - start;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const dayOfYear = Math.floor(diff / oneDay);
-  return QUOTES[dayOfYear % QUOTES.length];
-}
-
-// Phase color helpers
-function phaseColor(phaseId) {
-  const p = getPhase(phaseId);
-  return p ? p.color : '#2C5F2E';
-}
-
-function activityDotClass(activity, phase) {
-  if (!activity || activity === 'Rest') return 'dot-rest';
-  const p = PHASES.find(ph => ph.id === phase);
-  return p ? `dot-${p.cls}` : 'dot-p1';
-}
-
-// ════════════════════════════════════════════════════════════
-// RENDER
-// ════════════════════════════════════════════════════════════
-
-function renderHeader() {
-  const today = getToday();
-  document.getElementById('hdr-day').textContent = today.getDate();
-  document.getElementById('hdr-month').textContent = `${MONTHS_SHORT[today.getMonth()]} ${today.getFullYear()}`;
-}
-
-function renderToday() {
-  const today = getToday();
-  const weekIdx = getWeekIndex(today);
-  const dayIdx = getDayIndex(today);
-  const week = WEEKS[weekIdx];
-  const phase = getPhase(week.phase);
-  const dayData = week.days[dayIdx] || rest();
-
-  // Phase badge
-  const badge = document.getElementById('today-phase-badge');
-  badge.textContent = phase.label;
-  badge.className = `today-phase-badge badge-${phase.cls}`;
-
-  document.getElementById('today-weekday').textContent = WEEKDAYS[dayIdx];
-  document.getElementById('today-date-full').textContent = formatFullDate(today);
-  document.getElementById('today-activity').textContent = dayData.activity;
-  document.getElementById('today-detail').textContent = dayData.detail;
-
-  const tagsEl = document.getElementById('today-tags');
-  tagsEl.innerHTML = (dayData.tags || []).map(t =>
-    `<span class="workout-tag">${t}</span>`
-  ).join('');
-
-  // Encouragement
-  document.getElementById('encouragement-text').textContent = getDailyQuote(today);
-
-  // Progress bars
-  const trip1 = new Date(2026, 6, 26);
-  const trip2 = new Date(2026, 7, 21);
-  const planStart = new Date(2026, 2, 13);
-  const totalDays = getDaysBetween(planStart, trip2);
-  const elapsed = Math.max(0, getDaysBetween(planStart, today));
-  const pct1 = Math.min(100, Math.round(elapsed / getDaysBetween(planStart, trip1) * 100));
-  const pct2 = Math.min(100, Math.round(elapsed / totalDays * 100));
-  const daysToTrip1 = Math.max(0, getDaysBetween(today, trip1));
-  const daysToTrip2 = Math.max(0, getDaysBetween(today, trip2));
-
-  document.getElementById('progress-bars').innerHTML = `
-    <div class="progress-item">
-      <div class="progress-label">
-        <span class="progress-name">Indian Peaks (Jul 26)</span>
-        <span class="progress-pct">${daysToTrip1 > 0 ? daysToTrip1 + ' days away' : 'On trail!'}</span>
-      </div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" style="width:${pct1}%;background:#2C5F2E"></div>
-      </div>
-    </div>
-    <div class="progress-item">
-      <div class="progress-label">
-        <span class="progress-name">Trans-Sierra (Aug 21)</span>
-        <span class="progress-pct">${daysToTrip2 > 0 ? daysToTrip2 + ' days away' : 'On trail!'}</span>
-      </div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" style="width:${pct2}%;background:#B71C1C"></div>
-      </div>
-    </div>
-    <div class="progress-item">
-      <div class="progress-label">
-        <span class="progress-name">Season Progress</span>
-        <span class="progress-pct">${Math.min(100,pct2)}% complete</span>
-      </div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" style="width:${Math.min(100,pct2)}%;background:#D4A017"></div>
-      </div>
-    </div>
-  `;
-}
-
-function renderWeek() {
-  const today = getToday();
-  const weekIdx = getWeekIndex(today);
-  const week = WEEKS[weekIdx];
-  const phase = getPhase(week.phase);
-  const todayDayIdx = getDayIndex(today);
-
-  document.getElementById('week-title').textContent = `${week.label}  ·  ${week.dates}`;
-  document.getElementById('week-phase').textContent = phase.label;
-
-  // Figure out dates for Mon–Sun of this week
-  const monday = getMondayOfWeek(today);
-
-  const daysHtml = week.days.map((day, i) => {
-    const dayDate = new Date(monday);
-    dayDate.setDate(monday.getDate() + i);
-    const isToday = i === todayDayIdx;
-    const isRest = day.type === 'rest';
-
-    return `
-      <div class="week-day-row ${isToday ? 'today-row' : ''} ${isRest ? 'rest-row' : ''}">
-        <div class="day-label">
-          <div class="day-abbr">${WEEKDAYS_SHORT[i]}</div>
-          <div class="${isToday ? 'day-num today-num' : 'day-num'}">${dayDate.getDate()}</div>
-        </div>
-        <div class="day-content">
-          <div class="day-activity">${day.activity}</div>
-          ${day.detail ? `<div class="day-detail">${day.detail}</div>` : ''}
-        </div>
-        <div class="day-dot ${activityDotClass(day.activity, week.phase)}"></div>
-      </div>
-    `;
-  }).join('');
-
-  document.getElementById('week-days').innerHTML = daysHtml;
-}
-
-function renderSchedule() {
-  const today = getToday();
-  const currentWeekIdx = getWeekIndex(today);
-
-  // Group weeks by phase
-  const phaseGroups = {};
-  WEEKS.forEach((w, i) => {
-    if (!phaseGroups[w.phase]) phaseGroups[w.phase] = [];
-    phaseGroups[w.phase].push({ week: w, idx: i });
-  });
-
-  const html = PHASES.map(phase => {
-    const weeks = phaseGroups[phase.id];
-    if (!weeks || weeks.length === 0) return '';
-
-    const weeksHtml = weeks.map(({ week, idx }) => {
-      const isCurrent = idx === currentWeekIdx;
-      const dayItems = week.days.map((d, di) =>
-        `<div class="sched-day">
-          <div class="sched-day-label">${WEEKDAYS_SHORT[di]}</div>
-          <div class="sched-day-activity">${d.activity.replace('Gym: ','').replace('Cardio','Cardio').replace('Easy Walk','Walk').replace('Rest','—')}</div>
-        </div>`
-      ).join('');
-
-      return `
-        <div class="schedule-week-row ${isCurrent ? 'current-week' : ''}">
-          <div class="schedule-week-label">
-            <span>${week.label}  ·  ${week.dates}</span>
-            ${isCurrent ? '<span class="current-badge">THIS WEEK</span>' : ''}
-          </div>
-          <div class="schedule-week-days">${dayItems}</div>
-        </div>
-      `;
-    }).join('');
-
-    return `
-      <div class="schedule-phase">
-        <div class="phase-header phase-${phase.cls}">
-          <div class="phase-dot dot-${phase.cls}"></div>
-          <div class="phase-title">${phase.label}</div>
-          <div class="phase-dates">${phase.dates}</div>
-        </div>
-        <div class="phase-weeks">${weeksHtml}</div>
-      </div>
-    `;
-  }).join('');
-
-  document.getElementById('schedule-content').innerHTML = html;
-}
-
-function renderTrips() {
-  const today = getToday();
-
-  const trips = [
-    {
-      name: 'Indian Peaks Wilderness',
-      subtitle: 'Brainard Lake Counterclockwise Loop',
-      start: new Date(2026, 6, 26),
-      end: new Date(2026, 6, 29),
-      details: [
-        { label: 'Trailhead', value: 'Brainard Lake, CO' },
-        { label: 'Direction', value: 'Counterclockwise loop' },
-        { label: 'Elevation', value: '10,000 – 12,500 ft' },
-        { label: 'Duration', value: '4 days on trail' },
-        { label: 'Drive up', value: 'July 24 (overnight Denver/Boulder)' },
-        { label: 'Start hike', value: 'July 26' },
-        { label: 'Return to car', value: 'July 29' },
-        { label: 'Drive home', value: 'July 30–31' },
-      ],
-      tips: 'Arrive at sea level 1–2 days before the hike. Overnight in Denver or Boulder (5,400 ft) on July 24. Drink 4+ liters of water daily the first two days. Start slow on Day 1.',
-      badge: 'TRIP 1',
-      color: '#1B4332'
-    },
-    {
-      name: 'Trans-Sierra Expedition',
-      subtitle: 'TSX Outfitter — High-Altitude Traverse',
-      start: new Date(2026, 7, 21),
-      end: new Date(2026, 7, 29),
-      details: [
-        { label: 'Outfitter', value: 'TSX' },
-        { label: 'Elevation', value: '11,000 – 13,000+ ft' },
-        { label: 'Duration', value: '9 days on trail' },
-        { label: 'Start date', value: 'August 21' },
-        { label: 'End date', value: 'August 29' },
-        { label: 'Difficulty', value: 'High — longest & highest trip' },
-      ],
-      tips: 'Higher and longer than Indian Peaks. Your body retains some acclimatization from July but it fades in 3–4 weeks. Start conservatively on Day 1. Communicate with TSX guides about how you feel.',
-      badge: 'TRIP 2',
-      color: '#1B4332'
-    }
+  // ── PHASE 1: Base Build (Mar 13 – May 25) ──────────────
+  // Exact week-by-week progressions from the doc calendar
+  const p1=[
+    {mon:"2026-03-13", cardio:"45min", wed:"Hills 90min / no pack",    sat:"Hike 2hr / 15lb"},
+    {mon:"2026-03-16", cardio:"45min", wed:"Hills 90min / no pack",    sat:"Hike 2hr / 15lb"},
+    {mon:"2026-03-23", cardio:"50min", wed:"Hills w/ 15lb pack",       sat:"Hike 2.5hr / 18lb"},
+    {mon:"2026-03-30", cardio:"50min", wed:"Hills w/ 15lb pack",       sat:"Hike 2.5hr / 18lb"},
+    {mon:"2026-04-06", cardio:"55min", wed:"Hills w/ 18lb pack",       sat:"Hike 3hr / 20lb"},
+    {mon:"2026-04-13", cardio:"55min", wed:"Hills w/ 18lb pack",       sat:"Hike 3hr / 20lb"},
+    {mon:"2026-04-20", cardio:"60min", wed:"Hills w/ 20lb pack",       sat:"Hike 3.5hr / 22lb"},
+    {mon:"2026-04-27", cardio:"60min", wed:"Hills w/ 20lb pack",       sat:"Hike 3.5hr / 22lb"},
+    {mon:"2026-05-04", cardio:"60min", wed:"Hills w/ 22lb pack",       sat:"Hike 4hr / 25lb"},
+    {mon:"2026-05-11", cardio:"60min", wed:"Hills w/ 22lb pack",       sat:"Hike 4hr / 25lb"},
+    {mon:"2026-05-18", cardio:"60min", wed:"Hills w/ 25lb pack",       sat:"Hike 4hr / 28lb"},
   ];
+  p1.forEach(w=>{
+    set(w.mon,"Gym – Legs & Core",["gym"],
+      [{emoji:"💪",label:"Gym: Legs & Core",desc:"Squats, lunges, step-ups, Romanian deadlifts, planks, single-leg work. 45–60 min."}],"standard");
+    set(addDS(w.mon,1),"Cardio",["cardio"],
+      [{emoji:"🚴",label:`Cardio ${w.cardio}`,desc:"Bike, elliptical, or brisk walk. Keep heart rate in the conversational zone (Zone 2)."}],"standard");
+    set(addDS(w.mon,2),"Hills or Trail Hike",["hike"],
+      [{emoji:"🥾",label:w.wed,desc:"Sustained effort uphill. Focus on time on feet and elevation gain. Build that aerobic engine."}],"standard");
+    set(addDS(w.mon,3),"Gym – Full Body & Core",["gym"],
+      [{emoji:"💪",label:"Gym: Full Body + Core",desc:"Upper body pulling, hip hinges, rotational core, glute bridges. 45 min."}],"standard");
+    set(addDS(w.mon,4),"Rest or Easy Walk",["rest"],
+      [{emoji:"🌿",label:"Rest / Easy Walk 30 min",desc:"Recovery day. 30 min easy walk if desired. Do not train hard."}],"easy");
+    set(addDS(w.mon,5),"Loaded Hike",["hike"],
+      [{emoji:"🎒",label:w.sat,desc:"Choose hilly terrain with 1,500–2,500 ft elevation gain. Increase effort gradually week to week."}],"full");
+    set(addDS(w.mon,6),"Rest",["rest"],
+      [{emoji:"😴",label:"Full Rest",desc:"Full rest. 8+ hrs sleep. Adaptation happens during rest, not during the workout."}],"restYoga");
+  });
+  set("2026-05-25","Rest",["rest"],[{emoji:"😴",label:"Rest",desc:"End of Phase 1. Rest well before vacation."}],"restYoga");
 
-  const html = trips.map(trip => {
-    const now = today.getTime();
-    const start = trip.start.getTime();
-    const end = trip.end.getTime();
-    let countdownHtml = '';
+  // ── VACATION (May 26 – Jun 6) ───────────────────────────
+  function vacSet(dateStr,isHikeDay){
+    if(isHikeDay) set(dateStr,"Easy Hike or Walk",["hike"],
+      [{emoji:"🥾",label:"Easy Hike or Walk",desc:"30–60 min easy movement. If hiking is available, take it. Enjoy vacation — returning refreshed matters more than grinding through it."}],"easy");
+    else set(dateStr,"Easy Walk",["rest"],
+      [{emoji:"🌿",label:"Easy Walk 30–45 min",desc:"Daily movement to maintain aerobic base. No intensity pressure. You will not lose meaningful fitness in 12 days with light activity."}],"easy");
+  }
+  // V1: May 26–31
+  vacSet("2026-05-26",false); vacSet("2026-05-27",false);
+  vacSet("2026-05-28",true);  // Wed
+  vacSet("2026-05-29",false); vacSet("2026-05-30",false);
+  vacSet("2026-05-31",true);  // Sat
+  // V2: Jun 1–6
+  vacSet("2026-06-01",false); vacSet("2026-06-02",false);
+  vacSet("2026-06-03",true);  // Wed
+  vacSet("2026-06-04",false); vacSet("2026-06-05",false);
+  vacSet("2026-06-06",true);  // Sat
 
-    if (now < start) {
-      const days = getDaysBetween(today, trip.start);
-      const weeks = Math.floor(days / 7);
-      const remDays = days % 7;
-      countdownHtml = `
-        <div class="trip-countdown">
-          ${weeks > 0 ? `<div class="countdown-item"><div class="countdown-num">${weeks}</div><div class="countdown-label">weeks</div></div>` : ''}
-          ${remDays > 0 || weeks === 0 ? `<div class="countdown-item"><div class="countdown-num">${remDays}</div><div class="countdown-label">days</div></div>` : ''}
-          <div class="countdown-item" style="align-self:flex-end;padding-bottom:4px">
-            <div style="font-size:13px;color:var(--mist)">until the trailhead</div>
-          </div>
-        </div>`;
-    } else if (now >= start && now <= end) {
-      countdownHtml = `<div style="margin-top:14px;font-size:18px;color:var(--amber);font-family:'Playfair Display',serif;font-weight:700">YOU'RE ON TRAIL RIGHT NOW 🏔️</div>`;
-    } else {
-      countdownHtml = `<div style="margin-top:14px;font-size:14px;color:var(--mist)">Trip completed ✓</div>`;
-    }
+  // ── PHASE 2: Build & Specificity (Jun 7 – Jul 12) ──────
+  const p2=[
+    {mon:"2026-06-07", wed:"25lb", sat:"4.5hr / 30lb", sun:"2hr / 20lb"},
+    {mon:"2026-06-14", wed:"25lb", sat:"5hr / 30lb",   sun:"2hr / 20lb"},
+    {mon:"2026-06-21", wed:"28lb", sat:"5hr / 32lb",   sun:"2.5hr / 22lb"},
+    {mon:"2026-06-28", wed:"28lb", sat:"5hr / 33lb",   sun:"2.5hr / 25lb"},
+    {mon:"2026-07-05", wed:"30lb", sat:"5.5hr / 35lb", sun:"2.5hr / 25lb"},
+  ];
+  p2.forEach(w=>{
+    set(w.mon,"Gym – Single-Leg Strength",["gym"],
+      [{emoji:"💪",label:"Gym: Single-Leg Strength",desc:"Bulgarian split squats, weighted step-ups (18–24\" box), hip hinges, lateral band work. Your peak gym session of the week."}],"standard");
+    set(addDS(w.mon,1),"Cardio 60 min",["cardio"],
+      [{emoji:"🏃",label:"Cardio 60 min",desc:"Moderate effort — elevated heart rate, sustainable pace. Bike, elliptical, stairmill, or jog."}],"standard");
+    set(addDS(w.mon,2),`Steep Hill Repeats / ${w.wed}`,["hike","cardio"],
+      [{emoji:"📈",label:`Hill Repeats with ${w.wed} pack`,desc:`45–60 min of sustained climbing with ${w.wed} pack. Find your steepest local hill or stairs. This is the hardest weekday session.`}],"standard");
+    set(addDS(w.mon,3),"Gym – Stability & Core",["gym"],
+      [{emoji:"🧍",label:"Gym: Stability & Core",desc:"Single-leg balance, rotational core, hip abductors, glute work. Lighter than Monday — quality, not volume."}],"standard");
+    set(addDS(w.mon,4),"Rest or Easy Walk",["rest"],
+      [{emoji:"🌿",label:"Rest / Easy Walk",desc:"Active recovery only. Save the legs for the weekend."}],"easy");
+    set(addDS(w.mon,5),`Long Loaded Hike ${w.sat}`,["hike"],
+      [{emoji:"🎒",label:`Long Loaded Hike: ${w.sat}`,desc:`Target 2,500–3,500 ft elevation gain. Push pace on climbs. This is the most important session of the week.`}],"full");
+    set(addDS(w.mon,6),`Back-to-Back Recovery Hike ${w.sun}`,["hike"],
+      [{emoji:"🥾",label:`Back-to-Back Hike: ${w.sun}`,desc:`Easy pace. Moving on tired legs teaches your body exactly what multi-day backpacking demands. This is irreplaceable training.`}],"full");
+  });
+  set("2026-07-12","Rest",["rest"],[{emoji:"😴",label:"Rest",desc:"End of Phase 2 block. Recover before peak week."}],"restYoga");
 
-    const detailRows = trip.details.map(d =>
-      `<div class="trip-detail-row"><span class="trip-detail-label">${d.label}</span><span class="trip-detail-value">${d.value}</span></div>`
-    ).join('');
+  // ── PHASE 3: Peak & Taper (Jul 13 – Jul 23) ────────────
+  // Peak week Jul 13–19
+  set("2026-07-13","Gym – Moderate",["gym"],
+    [{emoji:"💪",label:"Gym: Moderate Strength",desc:"Maintain gym routine. Moderate effort — not chasing PRs. Prepare body for the big weekend."}],"standard");
+  set("2026-07-14","Cardio 45 min",["cardio"],
+    [{emoji:"🏃",label:"Cardio 45 min",desc:"Moderate effort cardio. Keep the engine warm."}],"standard");
+  set("2026-07-15","Easy Hike 90 min",["hike"],
+    [{emoji:"🥾",label:"Easy Hike 90 min",desc:"Easy-paced trail hike. Keep legs moving mid-week without overdoing it."}],"standard");
+  set("2026-07-16","Rest",["rest"],
+    [{emoji:"😴",label:"Rest",desc:"Rest before the peak weekend. Sleep 8–9 hrs."}],"restYoga");
+  set("2026-07-17","Rest",["rest"],
+    [{emoji:"😴",label:"Rest",desc:"Rest. Prepare mentally. Eat well, hydrate."}],"easy");
+  set("2026-07-18","BIG Hike – Peak Effort",["hike"],
+    [{emoji:"🏔",label:"BIG HIKE: 6+ hr / 35lb pack",desc:"The biggest effort of the entire training plan. Maximum elevation gain with full pack. Push the climbs. This is what everything has been building toward."}],"full");
+  set("2026-07-19","Recovery Hike – Back-to-Back",["hike"],
+    [{emoji:"🥾",label:"Recovery Hike: 2.5hr",desc:"Easy pace back-to-back hike. Moving on tired legs is exactly the point. This replicates Day 2 at Indian Peaks."}],"full");
+  // Taper Jul 20–23
+  set("2026-07-20","Easy Walk – Taper Begins",["rest"],
+    [{emoji:"🌿",label:"Easy Walk 30 min",desc:"Taper begins. Cut volume 60%. Keep some movement but absolutely no hard effort."}],"easy");
+  set("2026-07-21","Rest",["rest"],
+    [{emoji:"😴",label:"Rest",desc:"Taper. Sleep 8–9 hrs. No new stressors of any kind."}],"easy");
+  set("2026-07-22","Rest",["rest"],
+    [{emoji:"😴",label:"Rest",desc:"Rest. Hydrate. Check your gear list."}],"easy");
+  set("2026-07-23","Rest / Pack Gear",["rest"],
+    [{emoji:"🎒",label:"Rest / Pack Gear",desc:"Light stretching. Pack your bag carefully. Sleep 8–9 hrs. You have done the work. Trust it."}],"easy");
 
-    return `
-      <div class="trip-card">
-        <div class="trip-card-hero">
-          <div class="trip-badge">${trip.badge}</div>
-          <div class="trip-name">${trip.name}</div>
-          <div class="trip-dates">${trip.subtitle}</div>
-          ${countdownHtml}
-        </div>
-        <div class="trip-card-details">
-          ${detailRows}
-          <div class="tips-card" style="margin-top:12px;margin-bottom:0;background:#f8f9ff;">
-            <div class="tips-title">⛰ Altitude Reminder</div>
-            <div class="tips-text">${trip.tips}</div>
-          </div>
+  // ── DRIVE TO COLORADO (Jul 24–25) ──────────────────────
+  set("2026-07-24","Drive: Bay Area → Denver/Boulder",["drive"],
+    [{emoji:"🚗",label:"Drive Day – Bay Area to Denver/Boulder",desc:"Drive to Colorado. Overnight stop at Denver or Boulder (~5,400 ft) recommended for early altitude exposure. Stretch at stops. Hydrate. Eat well. Rest at the hotel."}],"easy");
+  set("2026-07-25","Acclimatization Day",["hike","rest"],
+    [{emoji:"🏔",label:"Acclimatization – Easy Walk near Brainard Lake",desc:"Light easy walk or short hike near the trailhead area. Eat well, hydrate aggressively (4+ liters), avoid alcohol. Headaches are normal and expected. Rest as much as possible."}],"easy");
+
+  // ── TRIP 1: INDIAN PEAKS (Jul 26–29) ───────────────────
+  for(let i=0;i<4;i++){
+    set(addDS("2026-07-26",i),`Indian Peaks – Day ${i+1}`,["trip"],
+      [{emoji:"⛺",label:`Trail Day ${i+1} – Brainard Lake Loop`,desc:"10,000–12,500 ft. Pace conservatively, especially on Day 1. Drink water constantly. Eat carbohydrates. Enjoy every step — you earned this."}],"easy");
+  }
+
+  // ── DRIVE HOME (Jul 30–31) ─────────────────────────────
+  set("2026-07-30","Drive: Colorado → Bay Area",["drive"],
+    [{emoji:"🚗",label:"Drive Home",desc:"Take it easy. Rest stops, real food, plenty of water. 8–9 hrs sleep each night. The drive is part of your recovery."}],"easy");
+  set("2026-07-31","Arrive Home – Rest",["rest"],
+    [{emoji:"😴",label:"Rest",desc:"Recover. Hydrate. Eat well. Reflect on what you just accomplished."}],"easy");
+
+  // ── PHASE 4: Recovery & Rebuild (Aug 1–13) ─────────────
+  // Week 1 (Aug 1–7): Easy movement only
+  ["2026-08-01","2026-08-02","2026-08-03","2026-08-04"].forEach(d=>
+    set(d,"Easy Walk",["rest"],[{emoji:"🌿",label:"Easy Walk 30–45 min",desc:"No hard efforts this week. Daily easy walks only. Sleep is your primary training tool right now. Many people feel deceptively strong post-trip — protect this week."}],"easy"));
+  set("2026-08-05","Rest",["rest"],[{emoji:"😴",label:"Full Rest",desc:"Rest. Fatigue from Indian Peaks often shows up on a delay."}],"restYoga");
+  set("2026-08-06","Easy Hike – No Pack",["hike"],[{emoji:"🥾",label:"Easy Hike 90 min / no pack",desc:"Light trail hike, no pack. Easy pace. Let the body keep recovering."}],"easy");
+  set("2026-08-07","Rest",["rest"],[{emoji:"😴",label:"Rest",desc:"Weekly rest."}],"restYoga");
+  // Week 2 (Aug 8–13): Moderate return
+  set("2026-08-08","Gym – Moderate",["gym"],[{emoji:"💪",label:"Gym: Moderate Strength",desc:"Return to gym at moderate weight. Legs and full body. Listen to your body — no max efforts."}],"standard");
+  set("2026-08-09","Cardio 45 min",["cardio"],[{emoji:"🚴",label:"Cardio 45 min",desc:"Moderate effort cardio. Re-establish the routine."}],"standard");
+  set("2026-08-10","Trail Hike 3hr / 25lb",["hike"],[{emoji:"🎒",label:"Trail Hike: 3hr / 25lb pack",desc:"Back to loaded hiking. 3 hrs, 25 lb pack. Moderate pace. No back-to-back hard days this week."}],"standard");
+  set("2026-08-11","Gym – Moderate",["gym"],[{emoji:"💪",label:"Gym: Moderate",desc:"Second gym session of the week. Moderate weight, full body."}],"standard");
+  set("2026-08-12","Rest",["rest"],[{emoji:"😴",label:"Rest",desc:"Rest before weekend hike."}],"easy");
+  set("2026-08-13","Hike 4hr / 25lb + Recovery 90min",["hike"],[{emoji:"🎒",label:"Hike 4hr / 25lb  +  Recovery 90min",desc:"Saturday: 4 hr loaded hike with 25 lb pack. Feel the fitness returning. Back to it."}],"full");
+
+  // ── PHASE 5: Trans-Sierra Prep (Aug 14–20) ─────────────
+  set("2026-08-14","Gym – Legs & Core",["gym"],
+    [{emoji:"💪",label:"Gym: Legs & Core – Moderate",desc:"Moderate strength — legs and core focus. No need to max out. Just prime the body for what's coming."}],"standard");
+  set("2026-08-15","Cardio 45 min",["cardio"],
+    [{emoji:"🏃",label:"Cardio 45 min – Moderate Effort",desc:"Moderate effort cardio. Keep the engine warm."}],"standard");
+  set("2026-08-16","BIG Hike – Final Peak Effort",["hike"],
+    [{emoji:"🏔",label:"BIG HIKE: 5–5.5hr / 35lb pack",desc:"Your final major training stimulus before Trans-Sierra. 5–5.5 hours with 35 lb pack. Push the climbs. This is the last big effort — leave it all out there."}],"full");
+  set("2026-08-17","Back-to-Back Recovery Hike",["hike"],
+    [{emoji:"🥾",label:"Recovery Hike: 2hr / 20–25lb",desc:"Easy pace. Final back-to-back simulation. This is exactly what the Trans-Sierra demands day after day."}],"full");
+  set("2026-08-18","Rest or Easy Walk",["rest"],
+    [{emoji:"🌿",label:"Rest or Easy Walk 30 min",desc:"Rest or a very easy walk. Taper begins in earnest."}],"easy");
+  set("2026-08-19","Easy Walk – Taper",["rest"],
+    [{emoji:"🌿",label:"Easy Walk 30 min / Light Stretching",desc:"Easy walk and light stretching. No gym. Trust the taper completely."}],"easy");
+  set("2026-08-20","Rest / Pack Gear",["rest"],
+    [{emoji:"🎒",label:"Rest / Pack Gear",desc:"Rest. Pack your gear carefully. Sleep 9 hrs. Hydrate all day. You have done the work."}],"easy");
+
+  // ── TRIP 2: TRANS-SIERRA (Aug 21–29) ───────────────────
+  for(let i=0;i<9;i++){
+    set(addDS("2026-08-21",i),`Trans-Sierra – Day ${i+1}`,["trip"],
+      [{emoji:"⛰",label:`Trail Day ${i+1} – TSX High Route`,desc:"11,000–13,000+ ft. Pace conservatively on Day 1. Hydrate 4+ liters/day through Day 3. Communicate with TSX guides about how you feel. Enjoy the traverse."}],"easy");
+  }
+
+  // ── PHASE 6: Maintenance (Sep 1 onward) ────────────────
+  // Sep 1–7: Easy only
+  ["2026-09-01","2026-09-02","2026-09-03","2026-09-04"].forEach(d=>
+    set(d,"Easy Walk",["rest"],[{emoji:"🌿",label:"Easy Walk",desc:"Easy walks only. No gym, no pack. Prioritize sleep, real food, hydration. You have earned this recovery."}],"easy"));
+  set("2026-09-05","Rest",["rest"],[{emoji:"😴",label:"Full Rest",desc:"Rest."}],"restYoga");
+  set("2026-09-06","Easy Hike – No Pack",["hike"],[{emoji:"🥾",label:"Easy Hike (no pack)",desc:"Light trail hike. No pack. Easy pace. Rediscover why you love the outdoors."}],"easy");
+  set("2026-09-07","Rest",["rest"],[{emoji:"😴",label:"Rest",desc:"Rest."}],"restYoga");
+  // Sep 8–14
+  set("2026-09-08","Gym – Light",["gym"],[{emoji:"💪",label:"Gym: Light",desc:"Return to gym, light weight."}],"easy");
+  set("2026-09-09","Cardio 30 min",["cardio"],[{emoji:"🚴",label:"Cardio 30 min",desc:"Easy aerobic. Just keep moving."}],"easy");
+  set("2026-09-10","Trail Hike – Easy",["hike"],[{emoji:"🥾",label:"Trail Hike – Easy",desc:"Easy trail, no pack."}],"easy");
+  set("2026-09-11","Gym – Light",["gym"],[{emoji:"💪",label:"Gym: Light",desc:"Second gym session, light."}],"easy");
+  set("2026-09-12","Rest",["rest"],[{emoji:"😴",label:"Rest",desc:"Rest."}],"easy");
+  set("2026-09-13","Hike / Light Pack",["hike"],[{emoji:"🥾",label:"Hike 2.5hr / light pack",desc:"Trail hike with light pack. Build back gradually."}],"standard");
+  set("2026-09-14","Rest",["rest"],[{emoji:"😴",label:"Rest",desc:"Rest."}],"restYoga");
+  // Sep 15–21
+  set("2026-09-15","Gym – Moderate",["gym"],[{emoji:"💪",label:"Gym: Moderate",desc:"Moderate gym session."}],"standard");
+  set("2026-09-16","Cardio 40 min",["cardio"],[{emoji:"🚴",label:"Cardio 40 min",desc:"Moderate cardio."}],"standard");
+  set("2026-09-17","Trail Hike",["hike"],[{emoji:"🥾",label:"Trail Hike",desc:"Moderate trail hike."}],"standard");
+  set("2026-09-18","Gym – Moderate",["gym"],[{emoji:"💪",label:"Gym: Moderate",desc:"Moderate gym."}],"standard");
+  set("2026-09-19","Rest",["rest"],[{emoji:"😴",label:"Rest",desc:"Rest."}],"easy");
+  set("2026-09-20","Hike 3hr / 20lb",["hike"],[{emoji:"🎒",label:"Hike 3hr / 20lb",desc:"Moderate hike, light pack."}],"standard");
+  set("2026-09-21","Rest",["rest"],[{emoji:"😴",label:"Rest",desc:"Enjoy fall."}],"restYoga");
+
+  return S;
+}
+
+const SCHEDULE = buildSchedule();
+function getDayData(dateStr){ return SCHEDULE[dateStr]||null; }
+
+// ════════════════════════════════════════════════════════════
+//  TAG CLASSES
+// ════════════════════════════════════════════════════════════
+const TC={gym:"tag-gym",cardio:"tag-cardio",hike:"tag-hike",rest:"tag-rest",stretch:"tag-stretch",yoga:"tag-yoga",drive:"tag-drive",trip:"tag-trip"};
+function renderTags(tags){ return tags.map(t=>`<span class="tag ${TC[t]||'tag-rest'}">${t}</span>`).join(''); }
+
+// ════════════════════════════════════════════════════════════
+//  QUOTES (including training principles from the doc)
+// ════════════════════════════════════════════════════════════
+const QUOTES=[
+  {text:"The mountains are calling and I must go.",attr:"— John Muir"},
+  {text:"It's not the mountain we conquer, but ourselves.",attr:"— Edmund Hillary"},
+  {text:"Consistency beats heroics. Twelve weeks of solid training will prepare you better than four weeks of hard training and eight weeks of inconsistency.",attr:"— Training Principles"},
+  {text:"Arriving rested beats arriving barely recovered from one more hard week. Trust the taper completely.",attr:"— Training Principles"},
+  {text:"Elevation gain beats mileage. Climbing 3,000 ft over 8 miles beats 12 flat miles every time.",attr:"— Training Principles"},
+  {text:"Back-to-back days are irreplaceable. Saturday + Sunday together is the most important training block of the week.",attr:"— Training Principles"},
+  {text:"Sleep is training. 7–9 hours per night is required, not optional. Adaptation happens during sleep.",attr:"— Training Principles"},
+  {text:"Of all the paths you take in life, make sure a few of them are dirt.",attr:"— John Muir"},
+  {text:"Not all those who wander are lost.",attr:"— J.R.R. Tolkien"},
+  {text:"The best view comes after the hardest climb.",attr:"— Unknown"},
+  {text:"May your trails be crooked, winding, lonesome, dangerous, leading to the most amazing view.",attr:"— Edward Abbey"},
+  {text:"In every walk with Nature, one receives far more than he seeks.",attr:"— John Muir"},
+  {text:"Somewhere between the bottom of the climb and the summit is the answer to why we climb.",attr:"— Greg Child"},
+  {text:"Weighted hikes are essential. Your body must adapt to carrying a loaded pack — use your actual backpack.",attr:"— Training Principles"},
+  {text:"Altitude cannot be fully trained at sea level. Early arrival, slow starts, and hydration are your primary altitude tools.",attr:"— Training Principles"},
+];
+function getQuote(){ const d=today(); return QUOTES[(d.getFullYear()*365+d.getMonth()*31+d.getDate())%QUOTES.length]; }
+
+// ════════════════════════════════════════════════════════════
+//  RENDER WORKOUT BLOCK
+// ════════════════════════════════════════════════════════════
+function renderItems(dayData){
+  let h='';
+  const restCls=dayData.tags.includes('trip')?'t-trip':dayData.tags.includes('rest')?'t-rest':'';
+  for(const item of dayData.items){
+    h+=`<div class="workout-item ${restCls}">
+      <div class="wi-icon">${item.emoji}</div>
+      <div><div class="wi-label">${item.label}</div><div class="wi-desc">${item.desc}</div></div>
+    </div>`;
+  }
+  const s=SL[dayData.stretch||'standard'];
+  h+=`<div class="workout-item t-${s.type}">
+    <div class="wi-icon">${s.emoji}</div>
+    <div><div class="wi-label">${s.name} <span style="font-size:10px;color:var(--sage);font-weight:400">${s.duration}</span></div>
+    <div class="wi-desc">${s.desc}</div></div>
+  </div>`;
+  return h;
+}
+
+// ════════════════════════════════════════════════════════════
+//  VIEW: TODAY
+// ════════════════════════════════════════════════════════════
+function renderToday(){
+  const now=today(), nowS=todayS();
+  const IP=pd("2026-07-26"), TSX=pd("2026-08-21"), START=pd("2026-03-13");
+  document.getElementById('headerDate').textContent=now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  document.getElementById('todayDate').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  const dd=getDayData(nowS), ph=getPhase(nowS);
+  if(dd){
+    document.getElementById('todayTitle').textContent=dd.name;
+    document.getElementById('todayPhase').textContent=(ph?ph.emoji+' '+ph.name:'🗓 Training Plan');
+    document.getElementById('todayDetails').innerHTML=renderItems(dd);
+  } else {
+    document.getElementById('todayTitle').textContent="Maintenance / 2027 Build";
+    document.getElementById('todayPhase').textContent="🌊 Phase 6 – Stay Strong for 2027";
+    document.getElementById('todayDetails').innerHTML=`<div class="workout-item"><div class="wi-icon">🌿</div><div>
+      <div class="wi-label">Maintain Routine</div>
+      <div class="wi-desc">Gym 2×/week, cardio 1×/week, one trail hike per month. Snowboarding and skiing count. Begin Phase 1 of next year's plan in March 2027.</div>
+    </div></div>
+    <div class="workout-item t-yoga"><div class="wi-icon">🧘‍♂️</div><div>
+      <div class="wi-label">Active Recovery Yoga <span style="font-size:10px;color:var(--sage);font-weight:400">30 min</span></div>
+      <div class="wi-desc">Sun salutation → warrior sequence → pigeon → supine twists → legs-up-wall. Focus on breath and hip opening.</div>
+    </div></div>`;
+  }
+  const q=getQuote();
+  document.getElementById('quoteText').textContent='"'+q.text+'"';
+  document.getElementById('quoteAttr').textContent=q.attr;
+  const ct1=Math.max(0,daysBetween(now,IP)), ct2=Math.max(0,daysBetween(now,TSX));
+  document.getElementById('ct1').textContent=ct1;
+  document.getElementById('ct2').textContent=ct2;
+  document.getElementById('ipDays').textContent=ct1;
+  document.getElementById('tsxDays').textContent=ct2;
+  const elapsed=daysBetween(START,now);
+  const p1=Math.min(100,Math.max(0,Math.round(elapsed/daysBetween(START,IP)*100)));
+  const p2=Math.min(100,Math.max(0,Math.round(elapsed/daysBetween(START,TSX)*100)));
+  document.getElementById('prog1pct').textContent=p1+'%';
+  document.getElementById('prog2pct').textContent=p2+'%';
+  document.getElementById('prog1bar').style.width=p1+'%';
+  document.getElementById('prog2bar').style.width=p2+'%';
+}
+
+// ════════════════════════════════════════════════════════════
+//  VIEW: THIS WEEK
+// ════════════════════════════════════════════════════════════
+function renderWeek(){
+  const now=today(), sw=sow(now), we=addD(sw,6);
+  document.getElementById('weekHeader').textContent=
+    sw.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' – '+
+    we.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  let h='';
+  for(let i=0;i<7;i++){
+    const d=addD(sw,i), dStr=ds(d), isToday=dStr===todayS();
+    const dd=getDayData(dStr);
+    const name=dd?dd.name:'Maintenance / Off Plan';
+    const tags=dd?[...dd.tags,(dd.stretch==='yoga'||dd.stretch==='restYoga'?'yoga':'stretch')]:['rest'];
+    h+=`<div class="week-day ${isToday?'today-row':''}" onclick="showDayDetail('${dStr}','week')">
+      <div class="day-date-col">
+        <div class="day-dow">${d.toLocaleDateString('en-US',{weekday:'short'})}</div>
+        <div class="day-num ${isToday?'today-num':''}">${d.getDate()}</div>
+      </div>
+      <div class="day-content">
+        <div class="day-workout-name">${name}</div>
+        <div class="day-tags">${renderTags(tags)}</div>
+      </div>
+      <div class="day-chevron">›</div>
+    </div>`;
+  }
+  document.getElementById('weekDays').innerHTML=h;
+}
+
+// ════════════════════════════════════════════════════════════
+//  VIEW: FULL SCHEDULE
+// ════════════════════════════════════════════════════════════
+function renderSchedule(){
+  let h='', nowS=todayS();
+  for(const phase of PHASES){
+    const pS=pd(phase.start), pE=pd(phase.end);
+    h+=`<div class="phase-section">
+      <div class="phase-header" style="background:${phase.color}">
+        <div>
+          <div class="phase-name">${phase.emoji} ${phase.name}</div>
+          <div class="phase-dates">${pS.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${pE.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
         </div>
       </div>
-    `;
-  }).join('');
+      <div class="phase-weeks">`;
 
-  document.getElementById('trips-content').innerHTML = html;
+    let cursor=sow(pS), wn=1;
+    while(cursor<=pE){
+      const wS=new Date(cursor), wE=addD(cursor,6);
+      const id=`sw-${phase.name.replace(/\W/g,'')}-${wn}`;
+      const daysInWeek=[];
+      for(let d=0;d<7;d++){
+        const day=addD(cursor,d), dStr=ds(day);
+        if(dStr>=phase.start&&dStr<=phase.end) daysInWeek.push({day,dStr});
+      }
+      if(daysInWeek.length>0){
+        const isSpecial=["Vacation","Drive","Trip"].some(x=>phase.name.includes(x));
+        const wLabel=isSpecial?phase.name:`Week ${wn}`;
+        h+=`<div class="schedule-week" id="${id}">
+          <div class="schedule-week-header" onclick="toggleWeek('${id}')">
+            <div>
+              <div class="sw-label">${wLabel}</div>
+              <div class="sw-dates">${wS.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${wE.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+            </div>
+            <div class="sw-chevron">›</div>
+          </div>
+          <div class="schedule-week-days">`;
+        for(const {day,dStr} of daysInWeek){
+          const dd=getDayData(dStr);
+          const name=dd?dd.name:'Maintenance';
+          const tags=dd?[...dd.tags,(dd.stretch==='yoga'||dd.stretch==='restYoga'?'yoga':'stretch')]:['rest'];
+          const isTd=dStr===nowS;
+          h+=`<div class="schedule-day" onclick="showDayDetail('${dStr}','schedule')" style="${isTd?'background:#E8F5E9;':''}">
+            <div class="sd-date">${day.toLocaleDateString('en-US',{weekday:'short'})} ${day.toLocaleDateString('en-US',{month:'numeric',day:'numeric'})}</div>
+            <div class="sd-content">
+              <div class="sd-name">${isTd?'<strong>':''}${name}${isTd?'</strong>':''}</div>
+              <div class="sd-tags">${tags.map(t=>`<span class="tag ${TC[t]||'tag-rest'}">${t}</span>`).join('')}</div>
+            </div>
+            <div class="sd-chevron">›</div>
+          </div>`;
+        }
+        h+=`</div></div>`;
+        wn++;
+      }
+      cursor=addD(cursor,7);
+    }
+    h+=`</div></div>`;
+  }
+  document.getElementById('scheduleContent').innerHTML=h;
 }
 
-// ════════════════════════════════════════════════════════════
-// NAV
-// ════════════════════════════════════════════════════════════
+function toggleWeek(id){ document.getElementById(id).classList.toggle('sw-expanded'); }
 
-function showView(name) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
-  event.target.classList.add('active');
+// ════════════════════════════════════════════════════════════
+//  VIEW: DAY DETAIL
+// ════════════════════════════════════════════════════════════
+let prevView='today';
 
-  if (name === 'week') renderWeek();
-  if (name === 'schedule') renderSchedule();
-  if (name === 'trips') renderTrips();
+function showDayDetail(dateStr,fromView){
+  prevView=fromView;
+  const date=pd(dateStr), dd=getDayData(dateStr), ph=getPhase(dateStr);
+  document.getElementById('backBtn').textContent=fromView==='week'?'← This Week':fromView==='schedule'?'← Full Schedule':'← Back';
+  document.getElementById('ddDow').textContent=date.toLocaleDateString('en-US',{weekday:'long'}).toUpperCase();
+  document.getElementById('ddDate').textContent=date.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('ddPhase').textContent=ph?ph.emoji+' '+ph.name:'📅 Training Plan';
+  document.getElementById('ddTitle').textContent=dd?dd.name:'Maintenance / Off Plan';
+
+  let body='';
+  // Altitude notes
+  if(dateStr>='2026-07-24'&&dateStr<='2026-07-29')
+    body+=`<div class="note-box">⚠️ <span><strong>Altitude:</strong> Brainard Lake ~10,500 ft; loop climbs above 12,000 ft. Overnight at Denver/Boulder (5,400 ft) on Jul 24. Start Jul 26 conservatively. Drink water constantly. Eat carbohydrates.</span></div>`;
+  if(dateStr>='2026-08-16'&&dateStr<='2026-08-29')
+    body+=`<div class="note-box">⚠️ <span><strong>Altitude:</strong> Trans-Sierra passes reach 11,000–13,000+ ft. Higher and longer than Indian Peaks. Hydrate 4+ liters/day through Day 3. Communicate with TSX guides about how you feel.</span></div>`;
+
+  body+=`<div class="section-label">Workout</div>`;
+  if(dd){
+    const itemCls=dd.tags.includes('trip')?'is-trip':dd.tags.includes('drive')?'is-drive':dd.tags.includes('rest')?'is-rest':'';
+    for(const item of dd.items){
+      body+=`<div class="detail-item ${itemCls}">
+        <div class="di-icon">${item.emoji}</div>
+        <div class="di-body"><div class="di-name">${item.label}</div><div class="di-desc">${item.desc}</div></div>
+      </div>`;
+    }
+    const s=SL[dd.stretch||'standard'];
+    body+=`<div class="section-label">Flexibility & Recovery</div>
+    <div class="detail-item ${s.type==='yoga'?'is-yoga':'is-stretch'}">
+      <div class="di-icon">${s.emoji}</div>
+      <div class="di-body">
+        <div class="di-name">${s.name}</div>
+        <div class="di-duration">${s.duration}</div>
+        <div class="di-desc">${s.desc}</div>
+      </div>
+    </div>`;
+  } else {
+    body+=`<div class="detail-item is-rest">
+      <div class="di-icon">🌿</div>
+      <div class="di-body"><div class="di-name">Maintenance Routine</div>
+      <div class="di-desc">Outside structured plan. Gym 2×/week, cardio 1×/week, one trail hike per month. Snowboarding and skiing count. Begin Phase 1 for 2027 in March.</div></div>
+    </div>
+    <div class="section-label">Flexibility & Recovery</div>
+    <div class="detail-item is-stretch">
+      <div class="di-icon">🧘</div>
+      <div class="di-body"><div class="di-name">Standard Flexibility Routine</div>
+      <div class="di-duration">15 min</div>
+      <div class="di-desc">Hip flexors, hamstrings, calves, pigeon pose, thoracic rotation, ankle circles. Hold each 30–45 sec.</div></div>
+    </div>`;
+  }
+  document.getElementById('ddBody').innerHTML=body;
+  showView('daydetail');
 }
 
+function goBack(){ showView(prevView); }
+
 // ════════════════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════════════════
+const VIEWS=['today','week','schedule','trips','daydetail'];
+function showView(name){
+  VIEWS.forEach(v=>document.getElementById('view-'+v).classList.toggle('active',v===name));
+  document.querySelectorAll('.nav-btn').forEach(btn=>{
+    const m=btn.getAttribute('onclick').match(/'([^']+)'/);
+    if(!m)return;
+    btn.classList.toggle('active',name==='daydetail'?m[1]===prevView:m[1]===name);
+  });
+  window.scrollTo(0,0);
+}
+
 // INIT
-// ════════════════════════════════════════════════════════════
-
-renderHeader();
 renderToday();
-
+renderWeek();
+renderSchedule();
 </script>
+
+<!-- PWA Icon -->
+<canvas id="ic" width="192" height="192" style="display:none"></canvas>
+<script>
+(function(){
+  const c=document.getElementById('ic'),ctx=c.getContext('2d');
+  const g=ctx.createLinearGradient(0,0,0,192);
+  g.addColorStop(0,'#1B4332');g.addColorStop(1,'#2C5F2E');
+  ctx.fillStyle=g;ctx.roundRect(0,0,192,192,36);ctx.fill();
+  ctx.fillStyle='#84A98C';
+  ctx.beginPath();ctx.moveTo(96,30);ctx.lineTo(170,150);ctx.lineTo(22,150);ctx.closePath();ctx.fill();
+  ctx.fillStyle='white';
+  ctx.beginPath();ctx.moveTo(96,30);ctx.lineTo(118,72);ctx.lineTo(74,72);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#D4A017';
+  ctx.beginPath();ctx.arc(148,50,22,0,Math.PI*2);ctx.fill();
+  ['apple-touch-icon','icon'].forEach(r=>{const l=document.createElement('link');l.rel=r;l.href=c.toDataURL('image/png');document.head.appendChild(l);});
+})();
+</script>
+<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;Trail Training&quot;,&quot;short_name&quot;:&quot;Trail Training&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%231B4332&quot;,&quot;theme_color&quot;:&quot;%231B4332&quot;}">
 </body>
 </html>
